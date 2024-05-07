@@ -1,0 +1,257 @@
+import 'dart:convert';
+import 'package:florahub/model/plant.dart';
+import 'package:florahub/view/plant/add.dart';
+import 'package:florahub/view/plant/plant_item.dart';
+import 'package:florahub/widgets/constants.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class PlantsPage extends StatelessWidget {
+  final int userId;
+  PlantsPage({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PlantsTabBar(userId: userId);
+  }
+}
+
+class PlantsTabBar extends StatefulWidget {
+  final int userId;
+  PlantsTabBar({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  _PlantsTabBarState createState() => _PlantsTabBarState(userId: userId);
+}
+
+class _PlantsTabBarState extends State<PlantsTabBar> {
+  _PlantsTabBarState({
+    required this.userId,
+  });
+  late final int userId;
+  bool isScheduleTimeEnabled = false;
+  late List<Plant> plants = []; // List to store the user's plants
+  late int plantId;
+
+  Future<void> fetchPlants() async {
+    try {
+      // Make an HTTP GET request to fetch the user's plants from the backend
+      http.Response response = await http.get(Uri.parse(
+          "http://172.20.10.3:8080/florahub/plant/plantsByUserId/${widget.userId}"));
+
+      print('Response body: ${response.body}');
+      // Check the response status
+      if (response.statusCode == 200) {
+        final dynamic responseData = json.decode(response.body);
+        if (responseData is List<dynamic>) {
+          // If the response data is a list, update the plants list
+          setState(() {
+            plants = responseData.map((json) => Plant.fromJson(json)).toList();
+          });
+        } else {
+          // Handle unexpected response format
+          print('Unexpected response format: $responseData');
+        }
+      } else {
+        // Handle errors or display an error message
+        print('Failed to fetch plants: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any exceptions
+      print('Error fetching plants: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchPlants();
+    print('User ID: $userId');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 80,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'My Plants',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 33,
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.only(left: 160)),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Constants.primaryColor.withOpacity(.15),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddPlants(
+                                      userId: userId,
+                                    )), // Navigate to AddPage
+                          );
+                        },
+                        icon: Icon(Icons.add),
+                      ),
+                    ),
+                  ],
+                ),
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: plants.length,
+                        itemBuilder: (context, index) {
+                          final plant = plants[index];
+                          return GestureDetector(
+                              onTap: () {
+                                // Navigate to the PlantItem screen when a plant is tapped
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlantItem(
+                                        userId: userId, plantId: plant.id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                child: Column(children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => PlantItem(
+                                                userId: userId,
+                                                plantId: plant.id)),
+                                      );
+                                    },
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        color: Colors
+                                            .transparent, // Set the background color to green
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Constants.primaryColor
+                                              .withOpacity(.1),
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                        ),
+                                        height: 150.0,
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        width: size.width,
+                                        child: Row(
+                                          children: [
+                                            Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                Container(
+                                                  width: 100.0,
+                                                  height: 120.0,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green[100],
+                                                    shape: BoxShape.rectangle,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 10,
+                                                  left: 10,
+                                                  child: SizedBox(
+                                                    height: 110.0,
+                                                    child: Image.asset(
+                                                        "assets/images/kids.png"),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 15,
+                                                  left: 140,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        plant.name,
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                          color: Constants
+                                                              .blackColor,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      Text(
+                                                          "Type: ${plant.type}"),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      OutlinedButton(
+                                                        child: Text(
+                                                          "More",
+                                                          style: TextStyle(
+                                                            color: Colors
+                                                                .black, // Choose your desired color
+                                                          ),
+                                                        ),
+                                                        style: OutlinedButton
+                                                            .styleFrom(
+                                                          side: BorderSide(
+                                                            color: const Color(
+                                                                0xff296e48),
+                                                          ),
+                                                        ),
+                                                        onPressed: () {},
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                /*Positioned(
+                              left: 280,
+                              child: IconButton(
+                                icon:
+                                    Icon(Icons.more_vert), // Use the menu icon
+                                onPressed: () {
+                                  // Handle tap on the menu icon
+                                },
+                              ),
+                            )*/
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ));
+                        }))
+              ],
+            )));
+  }
+}
