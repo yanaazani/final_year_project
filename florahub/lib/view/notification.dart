@@ -1,13 +1,23 @@
+import 'package:florahub/view/Homescreen.dart';
+import 'package:florahub/view/plant/plants.dart';
+import 'package:florahub/view/profile/settings.dart';
+import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 
 class NotificationPage extends StatefulWidget {
-  const NotificationPage({Key? key}) : super(key: key);
+  final int userId;
+  const NotificationPage({Key? key, required this.userId}) : super(key: key);
 
   @override
-  _NotificationPageState createState() => _NotificationPageState();
+  _NotificationPageState createState() =>
+      _NotificationPageState(userId: userId);
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  _NotificationPageState({required this.userId});
+  late final int userId;
+  int _selectedIndex = 2; // Set the initial index for NotificationPage
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +37,7 @@ class _NotificationPageState extends State<NotificationPage> {
               backgroundColor:
                   Colors.transparent, // Make app bar background transparent
               elevation: 0, // Remove app bar elevation
-              automaticallyImplyLeading:
-                  false, // Remove back button// Remove app bar elevation
+              automaticallyImplyLeading: false, // Remove back button
             ),
             body: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -51,6 +60,68 @@ class _NotificationPageState extends State<NotificationPage> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: _selectedIndex,
+        selectedItemColor: const Color.fromARGB(255, 54, 51, 51),
+        unselectedItemColor: Color.fromARGB(255, 165, 173, 165),
+        backgroundColor: Color.fromARGB(255, 200, 230, 201),
+        selectedFontSize: 14,
+        unselectedFontSize: 14,
+        type: BottomNavigationBarType.fixed,
+        onItemTapped: (index) {
+          setState(() {
+            _selectedIndex = index; // Update the selected index
+          });
+          // Handle navigation logic based on the selected index
+          switch (index) {
+            case 0:
+              // Navigate to HomeScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(userId: userId)),
+              );
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlantsPage(
+                          userId: userId,
+                        )),
+              );
+              break;
+            case 2:
+              // Navigate to NotificationPage
+              break;
+            case 3:
+              Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userId)),
+        );
+              break;
+          }
+        },
+        onTap: null,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_florist),
+            label: 'Plants',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

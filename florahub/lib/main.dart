@@ -55,45 +55,46 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.white,
         leading: null,
       ),
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 50, width: 10.0),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child:
-                  Lottie.asset('assets/Lottie/Animation - 1713933021164.json'),
-            ),
-            Text(
-              'Welcome to',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
+      body: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MyWidget()),
+          );
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50, width: 10.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Lottie.asset(
+                    'assets/Lottie/Animation - 1713933021164.json'),
               ),
-            ),
-            Text(
-              'FloraHub',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dancingScript(
-                  fontSize: 55,
+              Text(
+                'Welcome to',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 50,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 14, 149, 18)),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyWidget()),
-                );
-              },
-              icon: Icon(
+                ),
+              ),
+              Text(
+                'FloraHub',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.dancingScript(
+                    fontSize: 55,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 14, 149, 18)),
+              ),
+              Icon(
                 Icons.arrow_right_alt_outlined,
                 size: 30,
                 color: Colors.black54,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

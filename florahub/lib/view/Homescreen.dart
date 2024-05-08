@@ -4,6 +4,7 @@ import 'package:florahub/view/profile/detail_page.dart';
 import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/plant/plants.dart';
 import 'package:florahub/view/profile/settings.dart';
+import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
@@ -102,7 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => NotificationPage()),
+          MaterialPageRoute(
+              builder: (context) => NotificationPage(
+                    userId: userId,
+                  )),
         ); // Navigate to NotificationScreen
         break;
       case 3:
@@ -326,33 +330,68 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ]),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.compost_outlined),
-            label: 'Plants',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notification',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_people),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 54, 51, 51),
         unselectedItemColor: Color.fromARGB(255, 165, 173, 165),
         backgroundColor: Color.fromARGB(255, 200, 230, 201),
-        onTap: _onItemTapped,
         selectedFontSize: 14,
         unselectedFontSize: 14,
         type: BottomNavigationBarType.fixed,
+        onItemTapped: (index) {
+          setState(() {
+            _selectedIndex = index; // Update the selected index
+          });
+          switch (index) {
+            case 0:
+              // Navigate to HomeScreen
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlantsPage(
+                          userId: userId,
+                        )),
+              );
+              break; // No need to navigate, as already on PlantsPage
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NotificationPage(
+                          userId: userId,
+                        )),
+              );
+              break;
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SettingsPage(userId: userId)),
+              );
+              break;
+          }
+        },
+        onTap: null,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_florist),
+            label: 'Plants',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

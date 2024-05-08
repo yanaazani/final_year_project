@@ -24,7 +24,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.3:8080/florahub/plant/detail/$userId/$plantId'));
+        'http://10.132.11.229:8080/florahub/plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -102,7 +102,7 @@ class _PlantItemState extends State<PlantItem> {
                             } else if (value == 'Delete') {
                               // Handle delete action
                               debugPrint('Delete');
-                            } 
+                            }
                           },
                           itemBuilder: (BuildContext context) =>
                               <PopupMenuEntry<String>>[

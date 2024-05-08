@@ -1,6 +1,10 @@
+import 'package:florahub/view/Homescreen.dart';
+import 'package:florahub/view/notification.dart';
+import 'package:florahub/view/plant/plants.dart';
 import 'package:florahub/view/profile/privacy_page.dart';
 import 'package:florahub/view/user/edit%20profile.dart';
 import 'package:florahub/widgets/constants.dart';
+import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 import 'package:florahub/controller/RequestController.dart';
 
@@ -17,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late String username = "";
   late final int userId;
   bool isDarkModeEnabled = false;
-
+  int _selectedIndex = 0;
   Future<void> getUser() async {
     WebRequestController req =
         WebRequestController(path: "user/details/${widget.userId}");
@@ -216,6 +220,70 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           )),
+    bottomNavigationBar: CustomBottomNavigationBar(
+        selectedIndex: _selectedIndex,
+        selectedItemColor: const Color.fromARGB(255, 54, 51, 51),
+        unselectedItemColor: Color.fromARGB(255, 165, 173, 165),
+        backgroundColor: Color.fromARGB(255, 200, 230, 201),
+        selectedFontSize: 14,
+        unselectedFontSize: 14,
+        type: BottomNavigationBarType.fixed,
+        onItemTapped: (index) {
+          setState(() {
+            _selectedIndex = index; // Update the selected index
+          });
+          // Handle navigation logic based on the selected index
+          switch (index) {
+            case 0:
+              // Navigate to HomeScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(userId: userId)),
+              );
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlantsPage(
+                          userId: userId,
+                        )),
+              );
+              break; // No need to navigate, as already on PlantsPage
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NotificationPage(
+                          userId: userId,
+                        )),
+              );
+              break;
+            case 3:
+              break;
+          }
+        },
+        onTap: null,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_florist),
+            label: 'Plants',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 }
