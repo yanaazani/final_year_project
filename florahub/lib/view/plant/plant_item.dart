@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:florahub/view/plant/Manual%20watering.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -24,7 +25,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://10.132.11.229:8080/florahub/plant/detail/$userId/$plantId'));
+        'http://172.20.10.3:8080/florahub/plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -289,6 +290,43 @@ class _PlantItemState extends State<PlantItem> {
                                 ],
                               ),
                             ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Navigate to the web page for manual watering
+                                    // Replace 'WebViewPage' with your actual web page view page
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ManualWateringPage()),
+                                    );
+                                  },
+                                  child: Text('Manual Watering'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Add functionality for auto watering
+                                    // This could involve activating the soil moisture sensor
+                                    // or triggering an API call to start auto watering
+                                  },
+                                  child: Text('Auto Watering'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Implement functionality for manual schedule watering
+                                    // This might involve showing a dialog for the user to input their schedule
+                                    // and then storing this schedule in the database or triggering an action based on it
+                                  },
+                                  child: Text('Schedule Watering'),
+                                ),
+                              ],
+                            ),
                           ),
                           SizedBox(
                             width: 320, // Set the desired width
