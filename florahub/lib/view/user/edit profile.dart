@@ -187,7 +187,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
                         shape: BoxShape.circle,
                         image: _images != null
                             ? DecorationImage(
-                                fit: BoxFit.cover, image: MemoryImage(_images!))
+                                fit: BoxFit.cover, image: AssetImage(imageUrl))
                             : DecorationImage(
                                 fit: BoxFit.cover,
                                 image: AssetImage(imageUrl),

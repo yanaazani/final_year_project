@@ -51,7 +51,11 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
         if (responseData is List<dynamic>) {
           // If the response data is a list, update the plants list
           setState(() {
-            plants = responseData.map((json) => Plant.fromJson(json)).toList();
+            //plants = responseData.map((json) => Plant.fromJson(json)).toList();
+            plants = responseData
+                .map((json) => Plant.fromJson(json))
+                .where((plant) => !plant.deleted) // Filter out deleted plants
+                .toList();
           });
         } else {
           // Handle unexpected response format
@@ -207,22 +211,25 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
                                                     const SizedBox(height: 10),
                                                     Text("Type: ${plant.type}"),
                                                     const SizedBox(height: 10),
-                                                    OutlinedButton(
-                                                      child: Text(
-                                                        "More",
-                                                        style: TextStyle(
-                                                          color: Colors
-                                                              .black, // Choose your desired color
+                                                    SizedBox(
+                                                      width:
+                                                          150, // Set your desired width here
+                                                      child: OutlinedButton(
+                                                        onPressed: () {},
+                                                        child: Text(
+                                                          "More",
+                                                          style: TextStyle(
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                        style: OutlinedButton
+                                                            .styleFrom(
+                                                          side: BorderSide(
+                                                            color: const Color(
+                                                                0xff296e48),
+                                                          ),
                                                         ),
                                                       ),
-                                                      style: OutlinedButton
-                                                          .styleFrom(
-                                                        side: BorderSide(
-                                                          color: const Color(
-                                                              0xff296e48),
-                                                        ),
-                                                      ),
-                                                      onPressed: () {},
                                                     ),
                                                   ],
                                                 ),
@@ -272,7 +279,7 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
               );
               break;
             case 1:
-              break; 
+              break;
             case 2:
               Navigator.push(
                 context,
@@ -284,9 +291,10 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
               break;
             case 3:
               Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage(userId: userId)),
-        );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SettingsPage(userId: userId)),
+              );
               break;
           }
         },

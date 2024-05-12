@@ -34,8 +34,8 @@ def stop_water_pump():
     print("Water pump stopped.")
 
 # WiFi credentials
-wifi_ssid = "your_wifi_ssid"
-wifi_password = "your_wifi_password"
+wifi_ssid = "yanaezani"
+wifi_password = "yana1012"
 
 # Connect to WiFi
 connect_to_wifi(wifi_ssid, wifi_password)
@@ -64,7 +64,7 @@ html = """<!DOCTYPE html>
 """
 
 # Create socket
-addr = socket.getaddrinfo('0.0.0.0', 8080)[0][-1]
+addr = socket.getaddrinfo('0.0.0.0', 5000)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)

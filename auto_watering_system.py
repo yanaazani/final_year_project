@@ -1,8 +1,36 @@
-#Correct Code for Iot system
+# 11/5/2024 test
+#Correct & Latest Code for Iot system
+#For Auto Watering systerm only 
 
+import network  # type: ignore
 import urequests # type: ignore
 import time
+import ujson
 from machine import Pin, ADC # type: ignore
+
+# Connect to Wi-Fi
+wifi_ssid = "yanaezani"
+wifi_password = "yana1012"
+wifi = network.WLAN(network.STA_IF)
+wifi.active(True)
+wifi.connect(wifi_ssid, wifi_password)
+
+# Wait until connected to Wi-Fi
+while not wifi.isconnected():
+    pass
+
+print("Connected to Wi-Fi")
+
+# Function to get current date and time from an external server
+def get_current_time():
+    try:
+        response = urequests.get("http://worldtimeapi.org/api/timezone/Asia/Kuala_Lumpur")
+        data = response.json()
+        current_time = data["datetime"]
+        return current_time
+    except Exception as e:
+        print("Error getting current time:", e)
+        return None
 
 # Initialize variables
 reading = 0
@@ -21,8 +49,8 @@ pin_water_pump = Pin(8, Pin.OUT)
 # some variables for internal use
 calibrate_count = 0
 auto_calibrate = True
-SENSOR_MAX = 0
-SENSOR_MIN = 9999
+SENSOR_MAX = 430
+SENSOR_MIN = 352
 
 flow_frequency = 0
 flow_rate = 0
@@ -52,30 +80,10 @@ url = "http://172.20.10.3/xampp/save_data.php"
 
 # Main loop
 while True:
-    if auto_calibrate:
-        # take a reading from the sensor and make it a little easier to read
-        value = round(sensor_signal.read_u16() / 100)
-        print("reading:", value)
+        
+         # Get current date and time
+        date = get_current_time()
 
-        if value > SENSOR_MAX:
-            SENSOR_MAX = value
-
-        if value < SENSOR_MIN:
-            SENSOR_MIN = value
-
-        calibrate_count += 1
-
-        if calibrate_count > 100:
-            print("\n-------------------")
-            print("MIN:", SENSOR_MIN)
-            print("MAX:", SENSOR_MAX)
-            print("-------------------\n")
-            time.sleep(5)
-
-            auto_calibrate = False
-
-        time.sleep(0.2)
-    else:
         # take a reading from the sensor and make it a little easier to read
         value = round(sensor_signal.read_u16() / 100)
         print("reading:", value)
@@ -137,10 +145,7 @@ while True:
             print("Water Bill Amount = RM {:.2f}".format(bill_amount))
             print("\n-------------------\n")
 
-        # Current date and time
-            now = time.localtime()
-            date = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(now[0], now[1], now[2], now[3], now[4], now[5])
-
+      
         # Prepare data to send
             data = {
                 'date': date,

@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:florahub/controller/RequestController.dart';
+import 'package:florahub/view/dashboard/storage%20details.dart';
+import 'package:florahub/view/plant/Edit%20plant.dart';
 import 'package:florahub/view/plant/Manual%20watering.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/model/plant.dart';
@@ -33,6 +36,25 @@ class _PlantItemState extends State<PlantItem> {
     } else {
       // If the server did not return a 200 OK response, throw an exception
       throw Exception('Failed to load plant detail');
+    }
+  }
+
+  // Function to soft delete the plant
+  void softDeletePlant(int plantId, Function(bool) callback) async {
+    WebRequestController req =
+        WebRequestController(path: "plant/deletePlant/$plantId");
+
+    // Send the request to the server
+    await req.put();
+
+    if (req.status() == 200) {
+      // Plant soft deleted successfully
+      print('Plant soft deleted successfully');
+      callback(true); // Invoke the callback with true
+    } else {
+      // Failed to soft delete plant
+      print('Failed to soft delete plant');
+      callback(false); // Invoke the callback with false
     }
   }
 
@@ -98,11 +120,80 @@ class _PlantItemState extends State<PlantItem> {
                           onSelected: (String value) {
                             // Handle the selected option
                             if (value == 'Edit') {
-                              // Handle edit action
-                              debugPrint('Edit');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditPlantPage(
+                                          plantId: plantId,
+                                          userId: userId,
+                                        )),
+                              );
                             } else if (value == 'Delete') {
-                              // Handle delete action
-                              debugPrint('Delete');
+                              showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                      backgroundColor: Colors.green[50],
+                                      contentPadding: EdgeInsets.zero,
+                                      content: SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Center(
+                                                  child: Text(
+                                                    'Are you sure you want to\n delete this plant?',
+                                                    style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 150,
+                                                  child: OutlinedButton(
+                                                    style: OutlinedButton
+                                                        .styleFrom(
+                                                      side: BorderSide(
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255,
+                                                              68,
+                                                              104,
+                                                              69) // Change color to green
+                                                          ),
+                                                    ),
+                                                    onPressed: () {
+                                                      softDeletePlant(plantId,
+                                                          (bool success) {
+                                                        if (success) {
+                                                          // Handle success
+                                                          print(
+                                                              'Plant soft deleted successfully');
+                                                        } else {
+                                                          // Handle failure
+                                                          print(
+                                                              'Failed to soft delete plant');
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Text(
+                                                      "Yes",
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 15,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                              ]))));
                             }
                           },
                           itemBuilder: (BuildContext context) =>
@@ -134,7 +225,7 @@ class _PlantItemState extends State<PlantItem> {
                           Positioned(
                             top: 5,
                             left: MediaQuery.of(context).size.width / 2 -
-                                130, // Center horizontally
+                                200, // Center horizontally
                             child: SizedBox(
                               height: 200,
                               child: Image.asset("assets/images/kids.png"),
@@ -150,17 +241,36 @@ class _PlantItemState extends State<PlantItem> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  //Text('Size'),
-                                  /*PlantFeature(
-                            title: 'Humidity',
-                            plantFeature:
-                                _plantList[widget.plantId].humidity.toString(),
-                          ),
-                          PlantFeature(
-                            title: 'Temperature',
-                            plantFeature:
-                                _plantList[widget.plantId].temperature,
-                          ),*/
+                                  Text('Manual'),
+                                  Text('Watering'),
+                                  FloatingActionButton(
+                                    backgroundColor:
+                                        Color.fromARGB(187, 201, 228, 202),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ManualWateringPage()),
+                                      );
+                                    },
+                                    mini: true,
+                                    child: const Icon(Icons.water_drop,
+                                        color: Colors.white, size: 25),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text('Auto'),
+                                  Text('Watering'),
+                                  FloatingActionButton(
+                                    backgroundColor:
+                                        Color.fromARGB(187, 201, 228, 202),
+                                    onPressed: () {},
+                                    mini: true,
+                                    child: const Icon(Icons.auto_awesome,
+                                        color: Colors.white, size: 25),
+                                  ),
                                 ],
                               ),
                             ),
@@ -180,7 +290,7 @@ class _PlantItemState extends State<PlantItem> {
                       width: size.width,
                       decoration: BoxDecoration(
                         color: //Constants.primaryColor.withOpacity(.4),
-                            const Color.fromARGB(255, 201, 228, 202),
+                            Color.fromARGB(187, 201, 228, 202),
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(30),
                           topLeft: Radius.circular(30),
@@ -291,43 +401,6 @@ class _PlantItemState extends State<PlantItem> {
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Navigate to the web page for manual watering
-                                    // Replace 'WebViewPage' with your actual web page view page
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ManualWateringPage()),
-                                    );
-                                  },
-                                  child: Text('Manual Watering'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Add functionality for auto watering
-                                    // This could involve activating the soil moisture sensor
-                                    // or triggering an API call to start auto watering
-                                  },
-                                  child: Text('Auto Watering'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Implement functionality for manual schedule watering
-                                    // This might involve showing a dialog for the user to input their schedule
-                                    // and then storing this schedule in the database or triggering an action based on it
-                                  },
-                                  child: Text('Schedule Watering'),
-                                ),
-                              ],
-                            ),
-                          ),
                           SizedBox(
                             width: 320, // Set the desired width
                             child: OutlinedButton(
@@ -352,6 +425,14 @@ class _PlantItemState extends State<PlantItem> {
                                             ),
                                           ),
                                           SizedBox(height: 20),
+                                          Image.asset(
+                                            "assets/images/report.png",
+                                            width:
+                                                150, // Adjust the width as needed
+                                            height:
+                                                150, // Adjust the height as needed
+                                            // You can adjust other properties like width and height according to your requirements
+                                          ),
                                           Center(
                                             child: Text(
                                               "See how your plants are\n doing and improve care.",
@@ -386,7 +467,15 @@ class _PlantItemState extends State<PlantItem> {
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: 40),
+                                          //SizedBox(height: 20),
+                                          Image.asset(
+                                            "assets/images/analysis.png",
+                                            width:
+                                                200, // Adjust the width as needed
+                                            height:
+                                                150, // Adjust the height as needed
+                                            // You can adjust other properties like width and height according to your requirements
+                                          ),
                                           Center(
                                             child: Text(
                                               "Check water reports \nto care for plants better.",
@@ -413,7 +502,14 @@ class _PlantItemState extends State<PlantItem> {
                                                     69), // Change color to green
                                               ),
                                             ),
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StorageDetails()),
+                                              );
+                                            },
                                             child: Text(
                                               "View Reports",
                                               style: GoogleFonts.poppins(
@@ -467,8 +563,14 @@ class _PlantItemState extends State<PlantItem> {
         PopupMenuItem(
           child: GestureDetector(
             onTap: () {
-              debugPrint('Edit');
-              // Add code to handle edit action
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditPlantPage(
+                          plantId: plantId,
+                          userId: userId,
+                        )),
+              );
             },
             child: Text('Edit'),
           ),

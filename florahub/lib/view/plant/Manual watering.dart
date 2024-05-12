@@ -10,19 +10,21 @@ class ManualWateringPage extends StatefulWidget {
 }
 
 class _ManualWateringPageState extends State<ManualWateringPage> {
-  Color activateButtonColor = Color.fromARGB(255, 129, 178, 130); 
+  Color activateButtonColor = Color.fromARGB(255, 129, 178, 130);
   Color deactivateButtonColor = Color.fromARGB(255, 209, 59, 48);
 
   void sendManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.7:8080/?action=start';
+      var url = 'http://172.20.10.7:5000/?action=start';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         print('Manual watering activate sent successfully');
         setState(() {
-          activateButtonColor = Color.fromARGB(255, 129, 178, 130); // Change color when tapped
-          deactivateButtonColor = const Color.fromARGB(255, 194, 216, 195); // Reset deactivate button color
+          activateButtonColor =
+              Color.fromARGB(255, 129, 178, 130); // Change color when tapped
+          deactivateButtonColor = const Color.fromARGB(
+              255, 194, 216, 195); // Reset deactivate button color
         });
       } else {
         print('Failed to activate manual watering request');
@@ -34,14 +36,16 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
   void deactivateManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.7:8080/?action=stop';
+      var url = 'http://172.20.10.7:5000/?action=stop';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         print('Manual watering deactivate sent successfully');
         setState(() {
-          deactivateButtonColor = Color.fromARGB(255, 209, 59, 48); // Change color when tapped
-          activateButtonColor = const Color.fromARGB(255, 194, 216, 195); // Reset activate button color
+          deactivateButtonColor =
+              Color.fromARGB(255, 209, 59, 48); // Change color when tapped
+          activateButtonColor = const Color.fromARGB(
+              255, 194, 216, 195); // Reset activate button color
         });
       } else {
         print('Failed to deactivate manual watering request');

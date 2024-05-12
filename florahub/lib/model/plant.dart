@@ -11,6 +11,7 @@ class Plant {
   String scheduleTime = "";
   // Assuming userId is represented as an int in Dart
   int userId = 0;
+  bool deleted = false;
 
   Plant({
     this.id = 0,
@@ -19,6 +20,7 @@ class Plant {
     this.type = "",
     this.scheduleTime = "",
     this.userId = 0,
+    this.deleted = false,
   });
 
   factory Plant.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class Plant {
       description: json['description'] ?? "",
       type: json['type'] ?? "",
       scheduleTime: json['scheduleTime'] ?? "",
+      deleted: json['deleted'] ?? false,
       userId: userId,
     );
   }
@@ -61,6 +64,7 @@ class Plant {
       'type': type,
       'scheduleTime': scheduleTime,
       'userId': userId,
+      'deleted': deleted,
     };
   }
 }
