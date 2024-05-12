@@ -67,6 +67,20 @@ class _PlantItemState extends State<PlantItem> {
     print('Plant ID: $plantId');
   }
 
+  void AutoWateringSystem() async {
+    try {
+      var url = 'http://172.20.10.7:5000/?action=auto';
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        print('Manual watering activate sent successfully');
+      } else {
+        print('Failed to activate manual watering request');
+      }
+    } catch (e) {
+      print('Error activate manual watering request: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -266,7 +280,9 @@ class _PlantItemState extends State<PlantItem> {
                                   FloatingActionButton(
                                     backgroundColor:
                                         Color.fromARGB(187, 201, 228, 202),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      AutoWateringSystem();
+                                    },
                                     mini: true,
                                     child: const Icon(Icons.auto_awesome,
                                         color: Colors.white, size: 25),
@@ -408,7 +424,7 @@ class _PlantItemState extends State<PlantItem> {
                                 showDialog(
                                   context: context,
                                   builder: (ctx) => AlertDialog(
-                                    backgroundColor: Colors.green[50],
+                                    backgroundColor: const Color.fromRGBO(232, 245, 233, 1),
                                     contentPadding: EdgeInsets.zero,
                                     content: SizedBox(
                                       width: double.infinity,
