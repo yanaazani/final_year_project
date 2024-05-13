@@ -1,6 +1,8 @@
+import 'package:florahub/controller/RequestController.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class StorageDetails extends StatelessWidget {
   @override
@@ -22,16 +24,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  String selectedChips = 'Dec';
-  List<String> chips = [
-    'Nov',
-    'Dec',
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-  ];
-
   double dailyVolume = 0.0;
   double dailyAmount = 0.0;
   double monthlyVolume = 0.0;
@@ -44,6 +36,82 @@ class _DashboardState extends State<Dashboard> {
   String selectedChartType = 'Pie';
 
   get yValueMapper => null; // Default to Pie chart
+
+// Define variables to hold fetched data
+  List<double> dailyVolumes = [];
+  List<double> dailyAmounts = [];
+  List<double> monthlyVolumes = [];
+  List<double> monthlyAmounts = [];
+  List<double> yearlyVolumes = [];
+  List<double> yearlyAmounts = [];
+
+  Future<void> fetchData() async {
+    WebRequestController dailyVolumeController =
+        WebRequestController(path: 'water/totalVolumeDaily');
+    WebRequestController dailyAmountController =
+        WebRequestController(path: 'water/totalCostDaily');
+    WebRequestController monthlyVolumeController =
+        WebRequestController(path: 'water/totalVolumeMonthly');
+    WebRequestController monthlyAmountController =
+        WebRequestController(path: 'water/totalCostMonthly');
+    WebRequestController yearlyVolumeController =
+        WebRequestController(path: 'water/totalVolumeYearly');
+    WebRequestController yearlyAmountController =
+        WebRequestController(path: 'water/totalCostYearly');
+
+    await dailyVolumeController.get();
+    await dailyAmountController.get();
+    await monthlyVolumeController.get();
+    await monthlyAmountController.get();
+    await yearlyVolumeController.get();
+    await yearlyAmountController.get();
+
+    try {
+      if (dailyVolumeController.status() == 200 &&
+          dailyAmountController.status() == 200 &&
+          monthlyVolumeController.status() == 200 &&
+          monthlyAmountController.status() == 200 &&
+          yearlyVolumeController.status() == 200 &&
+          yearlyAmountController.status() == 200) {
+        var dailyVolumeData = dailyVolumeController.result();
+        var dailyAmountData = dailyAmountController.result();
+        var monthlyVolumeData = monthlyVolumeController.result();
+        var monthlyAmountData = monthlyAmountController.result();
+        var yearlyVolumeData = yearlyVolumeController.result();
+        var yearlyAmountData = yearlyAmountController.result();
+
+        setState(() {
+          dailyVolumes = parseResponse(dailyVolumeData);
+          dailyAmounts = parseResponse(dailyAmountData);
+          monthlyVolumes = parseResponse(monthlyVolumeData);
+          monthlyAmounts = parseResponse(monthlyAmountData);
+          yearlyVolumes = parseResponse(yearlyVolumeData);
+          yearlyAmounts = parseResponse(yearlyAmountData);
+        });
+      } else {
+       print('Failed to load data');
+      }
+    } catch (e) {
+      print('Error fetching data : $e');
+    }
+  }
+
+  // Helper method to parse JSON response
+  List<double> parseResponse(http.Response response) {
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map<double>((item) => item['volume'] as double).toList();
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data when the widget initializes
+    fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,17 +142,7 @@ class _DashboardState extends State<Dashboard> {
                     selectedReportTime = value!;
                   });
                 }),
-                SizedBox(width: 20),
-                // Dropdown menu for selecting chart type
-                _buildDropdownButton(
-                  selectedChartType,
-                  ['Bar', 'Pie'],
-                  (value) {
-                    setState(() {
-                      selectedChartType = value!;
-                    });
-                  },
-                ),
+                SizedBox(width: 20)
               ],
             ),
             Card(
@@ -106,7 +164,9 @@ class _DashboardState extends State<Dashboard> {
                                 flex: 4,
                                 child: Column(
                                   children: [
-                                    SizedBox(height: 20,),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
                                     Text(
                                       'Stacked column chart',
                                       style: TextStyle(
