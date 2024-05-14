@@ -1,8 +1,9 @@
-import 'package:florahub/controller/RequestController.dart';
+// ignore: unused_import
+import 'package:fl_chart/fl_chart.dart' hide PieChart;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:pie_chart/pie_chart.dart';
 
 class StorageDetails extends StatelessWidget {
   @override
@@ -24,6 +25,16 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  List<SalesData> _lineChartData = [];
+  TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
+  final dataMap = <String, double>{
+    "Water Volume Usage": 5,
+  };
+
+  final colorList = <Color>[
+    Color.fromARGB(148, 167, 216, 238),
+  ];
+
   double dailyVolume = 0.0;
   double dailyAmount = 0.0;
   double monthlyVolume = 0.0;
@@ -37,94 +48,26 @@ class _DashboardState extends State<Dashboard> {
 
   get yValueMapper => null; // Default to Pie chart
 
-// Define variables to hold fetched data
-  List<double> dailyVolumes = [];
-  List<double> dailyAmounts = [];
-  List<double> monthlyVolumes = [];
-  List<double> monthlyAmounts = [];
-  List<double> yearlyVolumes = [];
-  List<double> yearlyAmounts = [];
-
-  Future<void> fetchData() async {
-    WebRequestController dailyVolumeController =
-        WebRequestController(path: 'water/totalVolumeDaily');
-    WebRequestController dailyAmountController =
-        WebRequestController(path: 'water/totalCostDaily');
-    WebRequestController monthlyVolumeController =
-        WebRequestController(path: 'water/totalVolumeMonthly');
-    WebRequestController monthlyAmountController =
-        WebRequestController(path: 'water/totalCostMonthly');
-    WebRequestController yearlyVolumeController =
-        WebRequestController(path: 'water/totalVolumeYearly');
-    WebRequestController yearlyAmountController =
-        WebRequestController(path: 'water/totalCostYearly');
-
-    await dailyVolumeController.get();
-    await dailyAmountController.get();
-    await monthlyVolumeController.get();
-    await monthlyAmountController.get();
-    await yearlyVolumeController.get();
-    await yearlyAmountController.get();
-
-    try {
-      if (dailyVolumeController.status() == 200 &&
-          dailyAmountController.status() == 200 &&
-          monthlyVolumeController.status() == 200 &&
-          monthlyAmountController.status() == 200 &&
-          yearlyVolumeController.status() == 200 &&
-          yearlyAmountController.status() == 200) {
-        var dailyVolumeData = dailyVolumeController.result();
-        var dailyAmountData = dailyAmountController.result();
-        var monthlyVolumeData = monthlyVolumeController.result();
-        var monthlyAmountData = monthlyAmountController.result();
-        var yearlyVolumeData = yearlyVolumeController.result();
-        var yearlyAmountData = yearlyAmountController.result();
-
-        setState(() {
-          dailyVolumes = parseResponse(dailyVolumeData);
-          dailyAmounts = parseResponse(dailyAmountData);
-          monthlyVolumes = parseResponse(monthlyVolumeData);
-          monthlyAmounts = parseResponse(monthlyAmountData);
-          yearlyVolumes = parseResponse(yearlyVolumeData);
-          yearlyAmounts = parseResponse(yearlyAmountData);
-        });
-      } else {
-       print('Failed to load data');
-      }
-    } catch (e) {
-      print('Error fetching data : $e');
-    }
-  }
-
-  // Helper method to parse JSON response
-  List<double> parseResponse(http.Response response) {
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map<double>((item) => item['volume'] as double).toList();
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
   @override
   void initState() {
+    _lineChartData = getChartData();
+    _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
-    // Fetch data when the widget initializes
-    fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Water Data Dashboard'),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+        appBar: AppBar(
+          title: Text('Water Data Dashboard'),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                /*Row(
               children: [
                 // Dropdown menu for selecting report type
                 _buildDropdownButton(selectedReportType, ['Volume', 'Cost'],
@@ -144,80 +87,84 @@ class _DashboardState extends State<Dashboard> {
                 }),
                 SizedBox(width: 20)
               ],
-            ),
-            Card(
-              color: const Color.fromRGBO(232, 245, 233, 1),
-              surfaceTintColor: const Color.fromRGBO(232, 245, 233, 1),
-              shape: BeveledRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    //padding:
-                    //  EdgeInsets.symmetric(horizontal: 100, vertical: 100),
-                    child: Column(
-                      children: [
-                        Row(
+            ),*/
+                Card(
+                  color: const Color.fromRGBO(232, 245, 233, 1),
+                  surfaceTintColor: const Color.fromRGBO(232, 245, 233, 1),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        //padding:
+                        //  EdgeInsets.symmetric(horizontal: 100, vertical: 100),
+                        child: Column(
                           children: [
-                            Expanded(
-                                flex: 4,
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      'Stacked column chart',
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black),
-                                    )
-                                  ],
-                                )),
-                            /*Expanded(
+                            Row(
+                              children: [
+                                Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text(
+                                          'Daily Analysis',
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black),
+                                        )
+                                      ],
+                                    )),
+                                /*Expanded(
                                 flex: 2,
                                 child: Image.asset('assets/images/kids.png'))*/
-                          ],
-                        ),
-                        SfCartesianChart(
-                          margin: EdgeInsets.symmetric(vertical: 20),
-                          borderWidth: 0,
-                          plotAreaBorderWidth: 0,
-                          primaryXAxis: CategoryAxis(
-                            isVisible: false,
-                          ),
-                          primaryYAxis: NumericAxis(
-                            isVisible: false,
-                            minimum: 0,
-                            maximum: 2,
-                            interval: 0.5,
-                          ),
-                          series: <CartesianSeries>[
-                            ColumnSeries<ChartColumnData, String>(
-                              dataSource: chartData,
-                              width: 0.8,
-                              color: Colors.yellow,
-                              xValueMapper: (ChartColumnData data, _) => data.x,
-                              yValueMapper: (ChartColumnData data, _) => data.y,
+                              ],
                             ),
-                            ColumnSeries<ChartColumnData, String>(
-                              dataSource: chartData,
-                              width: 0.8,
-                              color: Colors.purple,
-                              xValueMapper: (ChartColumnData data, _) => data.x,
-                              yValueMapper: (ChartColumnData data, _) =>
-                                  data.y1,
+                            // Daily Volume Chart
+                            SfCartesianChart(
+                              //title: ChartTitle(text: 'Daily Analysis'),
+                              margin: EdgeInsets.symmetric(vertical: 20),
+                              borderWidth: 0,
+                              plotAreaBorderWidth: 0,
+                              primaryXAxis: CategoryAxis(
+                                isVisible: true,
+                              ), // x-axis
+                              primaryYAxis: NumericAxis(
+                                isVisible: true,
+                                minimum: 0,
+                                maximum: 2,
+                                interval: 1,
+                              ), // y-axis
+                              series: <CartesianSeries>[
+                                ColumnSeries<ChartColumnData, String>(
+                                  dataSource: chartData,
+                                  width: 0.8,
+                                  color: Color.fromARGB(148, 167, 216, 238),
+                                  xValueMapper: (ChartColumnData data, _) =>
+                                      data.x,
+                                  yValueMapper: (ChartColumnData data, _) =>
+                                      data.y,
+                                  dataLabelSettings: DataLabelSettings(
+                                    isVisible: true, // Show data labels
+                                    labelAlignment: ChartDataLabelAlignment
+                                        .top, // Align labels at the top of columns
+                                    labelPosition: ChartDataLabelPosition
+                                        .outside, // Position labels outside the columns
+                                    textStyle: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                /*Container(
                               width: 27,
                               height: 13,
                               decoration: BoxDecoration(
@@ -233,55 +180,189 @@ class _DashboardState extends State<Dashboard> {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black),
+                            ),*/
+                                SizedBox(
+                                  width: 20,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                // Display data based on selected report time
+                _buildDataCard(
+                    selectedReportTime, _getReportData(selectedReportTime)),
+                SizedBox(height: 20),
+                Card(
+                  color: const Color.fromRGBO(232, 245, 233, 1),
+                  surfaceTintColor: const Color.fromRGBO(232, 245, 233, 1),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          'Monthly Analysis',
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black),
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                      ],
+                                    )),
+                                /*Expanded(
+                                flex: 2,
+                                child: Image.asset('assets/images/kids.png'))*/
+                              ],
                             ),
-                            SizedBox(
-                              width: 20,
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 20,
+                              ),
+                              child: PieChart(
+                                dataMap: dataMap,
+                                chartType: ChartType.ring,
+                                baseChartColor: Color.fromARGB(255, 97, 42, 42)!
+                                    .withOpacity(0.15),
+                                colorList: colorList,
+                                chartValuesOptions: ChartValuesOptions(
+                                  showChartValuesInPercentage: true,
+                                ),
+                                totalValue: 20,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Card(
+                  color: const Color.fromRGBO(232, 245, 233, 1),
+                  surfaceTintColor: const Color.fromRGBO(232, 245, 233, 1),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        //padding:
+                        //  EdgeInsets.symmetric(horizontal: 100, vertical: 100),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                    flex: 4,
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text(
+                                          'Yearly Analysis',
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black),
+                                        )
+                                      ],
+                                    )),
+                                /*Expanded(
+                                flex: 2,
+                                child: Image.asset('assets/images/kids.png'))*/
+                              ],
                             ),
-                            Container(
+                            // Daily Volume Chart
+                            // Monthly Volume Chart
+                            SfCartesianChart(
+                              //title: ChartTitle(text: 'Yearly Analysis'),
+                              legend: Legend(isVisible: true),
+                              tooltipBehavior: _tooltipBehavior,
+                              series: <CartesianSeries>[
+                                LineSeries<SalesData, double>(
+                                  // Use LineSeries explicitly
+                                  name: 'Sales',
+                                  dataSource: _lineChartData,
+                                  xValueMapper: (SalesData sales, _) =>
+                                      sales.year,
+                                  yValueMapper: (SalesData sales, _) =>
+                                      sales.sales,
+                                  dataLabelSettings:
+                                      DataLabelSettings(isVisible: true),
+                                ),
+                              ],
+                              primaryXAxis: NumericAxis(
+                                edgeLabelPlacement: EdgeLabelPlacement.shift,
+                              ),
+                              primaryYAxis: NumericAxis(
+                                labelFormat: "{value}M",
+                                numberFormat: NumberFormat.simpleCurrency(
+                                    decimalDigits: 0),
+                              ),
+                            ),
+
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                /*Container(
                               width: 27,
                               height: 13,
                               decoration: BoxDecoration(
-                                  color: Colors.purple,
+                                  color: Colors.yellow,
                                   borderRadius: BorderRadius.circular(20)),
                             ),
                             SizedBox(
                               width: 10,
                             ),
                             Text(
-                              'Bill Cost (RM)',
+                              'Volume',
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black),
-                            ),
+                            ),*/
+                                SizedBox(
+                                  width: 20,
+                                ),
+                              ],
+                            )
                           ],
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                _buildDataCard(
+                    selectedReportTime, _getReportData(selectedReportTime)),
+                SizedBox(height: 20),
+              ],
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Chart based on selected type
-                  selectedChartType == 'Bar'
-                      ? _buildBarChart()
-                      : _buildPieChart(),
-                  SizedBox(height: 20),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            // Display data based on selected report time
-            _buildDataCard(
-                selectedReportTime, _getReportData(selectedReportTime)),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   Widget _buildDropdownButton(
@@ -376,19 +457,38 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
+
+  List<SalesData> getChartData() {
+    final List<SalesData> lineChartData = [
+      SalesData(2017, 25),
+      SalesData(2018, 20),
+      SalesData(2019, 10),
+      SalesData(2020, 15),
+      SalesData(2021, 20),
+    ];
+    return lineChartData;
+  }
 }
 
+class SalesData {
+  SalesData(this.year, this.sales);
+  final double year;
+  final double sales;
+}
+
+// Bar Chart - Daily Volume Chart
 class ChartColumnData {
-  ChartColumnData(this.x, this.y, this.y1);
+  ChartColumnData(this.x, this.y);
   final String x;
   final double? y;
-  final double? y1;
 }
 
 final List<ChartColumnData> chartData = <ChartColumnData>[
-  ChartColumnData('Mo', 1.7, 1.7),
-  ChartColumnData('Tu', 1.3, 1.3),
-  ChartColumnData('We', 1, 1),
-  ChartColumnData('Th', 1.5, 1.5),
-  ChartColumnData('Fr', 0.5, 0.5),
+  ChartColumnData('Mo', 1.7),
+  ChartColumnData('Tu', 1.3),
+  ChartColumnData('We', 1),
+  ChartColumnData('Th', 1.5),
+  ChartColumnData('Fr', 0.5),
+  ChartColumnData('Sa', 1.7),
+  ChartColumnData('Su', 1.7),
 ];
