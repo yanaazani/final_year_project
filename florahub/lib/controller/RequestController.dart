@@ -90,4 +90,37 @@ class WebRequestController {
   int status() {
     return _res?.statusCode ?? 0;
   }
+
+  Future<List<dynamic>> getTotalVolumeDaily() async {
+    _res = await http.get(Uri.parse(server + "water/totalVolumeDaily"));
+    if (_res?.statusCode == 200) {
+      _parseResult();
+      return _resultData as List<dynamic>;
+    } else {
+      print("HTTP request failed with status code: ${_res?.statusCode}");
+      throw Exception("Failed to fetch total volume daily data");
+    }
+  }
+
+  Future<Map<String, dynamic>> getTotalVolumeMonthly() async {
+    _res = await http.get(Uri.parse(server + "water/totalVolumeMonthly"));
+    if (_res?.statusCode == 200) {
+      _parseResult();
+      return _resultData as Map<String, dynamic>;
+    } else {
+      print("HTTP request failed with status code: ${_res?.statusCode}");
+      throw Exception("Failed to fetch total volume monthly data");
+    }
+  }
+
+  Future<List<dynamic>> getTotalVolumeYearly() async {
+    _res = await http.get(Uri.parse(server + "water/totalVolumeYearly"));
+    if (_res?.statusCode == 200) {
+      _parseResult();
+      return _resultData as List<dynamic>;
+    } else {
+      print("HTTP request failed with status code: ${_res?.statusCode}");
+      throw Exception("Failed to fetch total volume yearly data");
+    }
+  }
 }

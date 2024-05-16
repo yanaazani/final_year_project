@@ -37,6 +37,7 @@ url = "http://172.20.10.3/xampp/save_data.php"
 reading = 0
 percent = 0
 scheduled_time = None  # Variable to store the scheduled time
+scheduled_duration = 5  # Default duration for water pump activation
 
 # How frequently to take readings
 DELAY = 1.0
@@ -135,14 +136,19 @@ def auto_watering_system():
         except Exception as e:
             print("Error sending data:", e)
 
-# Function to set the scheduled time
-def set_scheduled_time(hour, minute):
-    global scheduled_time
+# Function to set the scheduled time and duration
+def set_scheduled_time(hour, minute, period, duration):
+    global scheduled_time, scheduled_duration
+    if period == "PM" and hour != 12:
+        hour += 12
+    elif period == "AM" and hour == 12:
+        hour = 0
     scheduled_time = (hour, minute)
-    print(f"Scheduled time set to {hour:02}:{minute:02}")
+    scheduled_duration = duration
+    print(f"Scheduled time set to {hour:02}:{minute:02} for {duration} seconds")
 
 def check_scheduled_time():
-    global scheduled_time
+    global scheduled_time, scheduled_duration
     current_time = get_current_time()
     if current_time is None:
         return
@@ -151,7 +157,7 @@ def check_scheduled_time():
     if scheduled_time and (current_hour, current_minute) == scheduled_time:
         print("Scheduled time reached. Activating water pump.")
         pin_water_pump.on()
-        time.sleep(5)
+        time.sleep(scheduled_duration)
         pin_water_pump.off()
 
 # HTML content for the control panel
@@ -176,6 +182,19 @@ html = """<!DOCTYPE html>
             <h2>Auto Watering System</h2>
             <button class="buttonBlue" name="action" value="auto" type="submit">Activate Auto-Watering System</button>
             <button class="buttonRed" name="action" value="stop" type="submit">Deactivate Auto-Watering System</button>
+            <h2>Schedule Watering System</h2>
+            <label for="hour">Hour:</label>
+            <input type="number" id="hour" name="hour" min="0" max="12">
+            <label for="minute">Minute:</label>
+            <input type="number" id="minute" name="minute" min="0" max="59">
+            <select id="period" name="period">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+            </select>
+            <label for="duration">Duration (seconds):</label>
+            <input type="number" id="duration" name="duration" min="1">
+            <button class="buttonBlue" name="action" value="schedule" type="submit">Set Schedule</button>
+            <p>Set the time and duration for how long you want the water pump to be activated.</p>
         </form>
     </center>
 </body>
@@ -207,11 +226,19 @@ while True:
         elif 'action=auto' in request_str:
             while 'action=auto' in request_str:
                 auto_watering_system()
-
         elif 'action=stop_auto' in request_str:
             print("Auto-watering system stopped.")
             # Exiting the loop will stop auto-watering system
             break
+        elif 'action=schedule' in request_str:
+            hour = int(request_str.split('hour=')[1].split('&')[0])
+            minute = int(request_str.split('minute=')[1].split('&')[0])
+            period = request_str.split('period=')[1].split('&')[0]
+            duration = int(request_str.split('duration=')[1].split(' ')[0])
+            set_scheduled_time(hour, minute, period, duration)
+
+        # Check for scheduled time activation
+        check_scheduled_time()
 
         # Send HTML response
         cl.send('HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'.encode())

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/dashboard/storage%20details.dart';
+import 'package:florahub/view/dashboard/water%20data%20volume.dart';
 import 'package:florahub/view/plant/Edit%20plant.dart';
 import 'package:florahub/view/plant/Manual%20watering.dart';
+import 'package:florahub/view/plant/Schedule%20watering.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -241,15 +243,156 @@ class _PlantItemState extends State<PlantItem> {
                             left: MediaQuery.of(context).size.width / 2 -
                                 200, // Center horizontally
                             child: SizedBox(
-                              height: 200,
+                              height: 240,
                               child: Image.asset("assets/images/kids.png"),
+                            ),
+                          ),
+                          Positioned(
+                            top: 270,
+                            child: SizedBox(
+                              width: 240, // Set the desired width
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      backgroundColor: const Color.fromRGBO(
+                                          232, 245, 233, 1),
+                                      contentPadding: EdgeInsets.zero,
+                                      content: SizedBox(
+                                        width: double.infinity,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Center(
+                                              child: Text(
+                                                "Data Overview",
+                                                style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 25,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 20),
+                                            Image.asset(
+                                              "assets/images/report.png",
+                                              width:
+                                                  150, // Adjust the width as needed
+                                              height:
+                                                  150, // Adjust the height as needed
+                                              // You can adjust other properties like width and height according to your requirements
+                                            ),
+                                            Center(
+                                              child: Text(
+                                                "See how your plants are\n doing and improve care.",
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                            ),
+                                            Center(
+                                              child: SizedBox(
+                                                width: 250,
+                                                child: OutlinedButton(
+                                                  style:
+                                                      OutlinedButton.styleFrom(
+                                                    side: BorderSide(
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255,
+                                                            68,
+                                                            104,
+                                                            69) // Change color to green
+                                                        ),
+                                                  ),
+                                                  onPressed: () {},
+                                                  child: Text(
+                                                    "Explore Trends",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 15,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            //SizedBox(height: 20),
+                                            Image.asset(
+                                              "assets/images/analysis.png",
+                                              width:
+                                                  200, // Adjust the width as needed
+                                              height:
+                                                  150, // Adjust the height as needed
+                                              // You can adjust other properties like width and height according to your requirements
+                                            ),
+                                            Center(
+                                              child: Text(
+                                                "Check water reports \nto care for plants better.",
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      actions: <Widget>[
+                                        Center(
+                                          child: SizedBox(
+                                            width: 250,
+                                            child: OutlinedButton(
+                                              style: OutlinedButton.styleFrom(
+                                                side: BorderSide(
+                                                  color: const Color.fromARGB(
+                                                      255,
+                                                      68,
+                                                      104,
+                                                      69), // Change color to green
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          WaterDataVolume()),
+                                                );
+                                              },
+                                              child: Text(
+                                                "View Reports",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 15,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: const Color(0xff296e48),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Data Overview",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           Positioned(
                             top: 10,
                             right: 0,
                             child: SizedBox(
-                              height: 200,
+                              height: 300,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -287,6 +430,26 @@ class _PlantItemState extends State<PlantItem> {
                                     child: const Icon(Icons.auto_awesome,
                                         color: Colors.white, size: 25),
                                   ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text('Schedule'),
+                                  Text('Watering'),
+                                  FloatingActionButton(
+                                    backgroundColor:
+                                        Color.fromARGB(187, 201, 228, 202),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ScheduleWateringPage()),
+                                      );
+                                    },
+                                    mini: true,
+                                    child: const Icon(Icons.schedule,
+                                        color: Colors.white, size: 30),
+                                  ),
                                 ],
                               ),
                             ),
@@ -301,8 +464,8 @@ class _PlantItemState extends State<PlantItem> {
                     right: 0,
                     child: Container(
                       padding:
-                          const EdgeInsets.only(top: 40, left: 30, right: 30),
-                      height: size.height * .6,
+                          const EdgeInsets.only(top: 30, left: 30, right: 30),
+                      height: size.height * .48,
                       width: size.width,
                       decoration: BoxDecoration(
                         color: //Constants.primaryColor.withOpacity(.4),
@@ -393,7 +556,7 @@ class _PlantItemState extends State<PlantItem> {
                                   ),
                                 ],
                               ),
-                              Row(
+                              /*Row(
                                 children: [
                                   Text(
                                     'Schedule Time',
@@ -414,144 +577,8 @@ class _PlantItemState extends State<PlantItem> {
                                     },
                                   ),
                                 ],
-                              ),
+                              ),*/
                             ],
-                          ),
-                          SizedBox(
-                            width: 320, // Set the desired width
-                            child: OutlinedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    backgroundColor: const Color.fromRGBO(232, 245, 233, 1),
-                                    contentPadding: EdgeInsets.zero,
-                                    content: SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Center(
-                                            child: Text(
-                                              "Data Overview",
-                                              style: GoogleFonts.poppins(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 25,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(height: 20),
-                                          Image.asset(
-                                            "assets/images/report.png",
-                                            width:
-                                                150, // Adjust the width as needed
-                                            height:
-                                                150, // Adjust the height as needed
-                                            // You can adjust other properties like width and height according to your requirements
-                                          ),
-                                          Center(
-                                            child: Text(
-                                              "See how your plants are\n doing and improve care.",
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                          Center(
-                                            child: SizedBox(
-                                              width: 250,
-                                              child: OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  side: BorderSide(
-                                                      color: const Color
-                                                          .fromARGB(
-                                                          255,
-                                                          68,
-                                                          104,
-                                                          69) // Change color to green
-                                                      ),
-                                                ),
-                                                onPressed: () {},
-                                                child: Text(
-                                                  "Explore Trends",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 15,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          //SizedBox(height: 20),
-                                          Image.asset(
-                                            "assets/images/analysis.png",
-                                            width:
-                                                200, // Adjust the width as needed
-                                            height:
-                                                150, // Adjust the height as needed
-                                            // You can adjust other properties like width and height according to your requirements
-                                          ),
-                                          Center(
-                                            child: Text(
-                                              "Check water reports \nto care for plants better.",
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      Center(
-                                        child: SizedBox(
-                                          width: 250,
-                                          child: OutlinedButton(
-                                            style: OutlinedButton.styleFrom(
-                                              side: BorderSide(
-                                                color: const Color.fromARGB(
-                                                    255,
-                                                    68,
-                                                    104,
-                                                    69), // Change color to green
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        StorageDetails()),
-                                              );
-                                            },
-                                            child: Text(
-                                              "View Reports",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 15,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: const Color(0xff296e48),
-                                ),
-                              ),
-                              child: Text(
-                                "Data Overview",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),
