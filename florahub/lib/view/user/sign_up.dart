@@ -4,6 +4,10 @@ import 'package:florahub/view/user/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart'; // For hashing password
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -77,6 +81,68 @@ class _RegisterFormState extends State<RegisterForm> {
         fontSize: 16.0,
       );
     }
+  }
+
+  Future<void> signupFirebase(
+      String email, String password, String username) async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // Add user data to Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': email,
+        'username': username,
+      });
+
+      await FirebaseFirestore.instance
+          .collection('parents')
+          .doc(userCredential.user!.uid)
+          .set({
+        'parentName': username,
+        'parentEmail': email,
+        // You can add more fields here as needed
+      });
+
+      // You can navigate to another screen or perform other actions upon successful registration
+      // For example:
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => NextScreen()),
+      // );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        // Handle weak password error
+      } else if (e.code == 'email-already-in-use') {
+        // Handle email already in use error
+      }
+    } catch (e) {
+      // Handle other errors
+    }
+  }
+
+  Future<void> signupBoth(BuildContext context) async {
+    // Call your signup function
+    await signup();
+
+    // Call your signupFirebase function
+    await signupFirebase(
+      emailController.text,
+      passwordController.text,
+      usernameCotroller.text,
+    );
+  }
+
+// Function to hash password
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password); // Convert password to bytes
+    var digest = sha256.convert(bytes); // Hash the bytes using SHA-256
+    return digest.toString(); // Convert the hash to a string
   }
 
   @override

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/model/plants.dart';
+import 'package:florahub/view/plant/search%20results%20page.dart';
 import 'package:florahub/view/profile/detail_page.dart';
 import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/plant/plants.dart';
@@ -8,6 +11,7 @@ import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   final int userId;
@@ -22,6 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late String username = "";
   late final int userId;
   int _selectedIndex = 0;
+  TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _searchResults = [];
 
   Future<void> getUser() async {
     WebRequestController req =
@@ -118,6 +124,49 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _searchPlants(String query) async {
+    String familyName = '';
+    String apiKey = 'Hl2OFlaosCC37C5TME9BwXJUwif-pIP1JrilOwlwiFU';
+    String url =
+        'https://trefle.io/api/v1/plants/search?token=$apiKey&q=$query';
+
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        setState(() {
+          _searchResults = List<Map<String, dynamic>>.from(data['data']);
+          print(_searchResults);
+        });
+
+        // Extract family name from the first result
+        if (_searchResults.isNotEmpty) {
+          var firstResult = _searchResults.first;
+          String resultFamilyName =
+              firstResult['family_common_name'] ?? firstResult['family'];
+          if (resultFamilyName != null && resultFamilyName.isNotEmpty) {
+            familyName = resultFamilyName;
+          }
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SearchResultsPage(
+              searchResults: _searchResults,
+              familyName: familyName,
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to load search results');
+      }
+    } catch (e) {
+      print('Error: $e');
+      // Handle error
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //Toggle Favorite button
@@ -177,21 +226,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.search,
-                        color: Colors.black54.withOpacity(.6),
-                      ),
-                      const Expanded(
+                      Expanded(
                           child: TextField(
-                        showCursor: false,
+                        controller: _searchController,
+                        showCursor: true,
                         decoration: InputDecoration(
                           hintText: 'Search Plant',
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
                         ),
+                        onChanged: (value) {
+                          _searchPlants(value);
+                        },
                       )),
                       Icon(
-                        Icons.mic,
+                        Icons.search,
                         color: Colors.black54.withOpacity(.6),
                       ),
                     ],
