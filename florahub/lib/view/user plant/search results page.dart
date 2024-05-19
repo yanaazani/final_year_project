@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:florahub/view/plant/plant%20detail%20page.dart';
+import 'package:florahub/view/user%20plant/plant%20detail%20page.dart';
 
 class SearchResultsPage extends StatelessWidget {
   final List<Map<String, dynamic>> searchResults;

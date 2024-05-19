@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/dashboard/storage%20details.dart';
 import 'package:florahub/view/dashboard/water%20data%20volume.dart';
-import 'package:florahub/view/plant/Edit%20plant.dart';
-import 'package:florahub/view/plant/Manual%20watering.dart';
-import 'package:florahub/view/plant/Schedule%20watering.dart';
+import 'package:florahub/view/user%20plant/Edit%20plant.dart';
+import 'package:florahub/view/user%20plant/Manual%20watering.dart';
+import 'package:florahub/view/user%20plant/Schedule%20watering.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -30,7 +30,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.3:8080/florahub/plant/detail/$userId/$plantId'));
+        'http://172.20.10.3:8080/florahub/user_plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -44,7 +44,7 @@ class _PlantItemState extends State<PlantItem> {
   // Function to soft delete the plant
   void softDeletePlant(int plantId, Function(bool) callback) async {
     WebRequestController req =
-        WebRequestController(path: "plant/deletePlant/$plantId");
+        WebRequestController(path: "user_plant/deletePlant/$plantId");
 
     // Send the request to the server
     await req.put();

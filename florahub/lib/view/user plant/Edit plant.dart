@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:florahub/controller/RequestController.dart';
-import 'package:florahub/view/plant/plants.dart';
+import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,7 +56,7 @@ class _EditPlantPageState extends State<EditPlantPage> {
 
   Future<void> getPlant() async {
     WebRequestController req =
-        WebRequestController(path: "plant/detailPlant/${widget.plantId}");
+        WebRequestController(path: "user_plant/detailPlant/${widget.plantId}");
 
     await req.get();
     print(req.result());
@@ -100,7 +100,7 @@ class _EditPlantPageState extends State<EditPlantPage> {
     }
 
     WebRequestController req =
-        WebRequestController(path: "plant/editPlant/${widget.plantId}");
+        WebRequestController(path: "user_plant/editPlant/${widget.plantId}");
 
     req.setBody(requestBody);
     await req.put();

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/notification.dart';
-import 'package:florahub/view/plant/add.dart';
-import 'package:florahub/view/plant/plant_item.dart';
+import 'package:florahub/view/user%20plant/add.dart';
+import 'package:florahub/view/user%20plant/plant_item.dart';
 import 'package:florahub/view/profile/settings.dart';
 import 'package:florahub/widgets/constants.dart';
 import 'package:florahub/widgets/navigation%20bar.dart';
@@ -42,7 +42,7 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
     try {
       // Make an HTTP GET request to fetch the user's plants from the backend
       http.Response response = await http.get(Uri.parse(
-          "http://172.20.10.3:8080/florahub/plant/plantsByUserId/${widget.userId}"));
+          "http://172.20.10.3:8080/florahub/user_plant/plantsByUserId/${widget.userId}"));
 
       print('Response body: ${response.body}');
       // Check the response status

@@ -50,7 +50,7 @@ class _AddPlantsState extends State<AddPlants> {
     /**
        * save the data registered to database
        */
-    WebRequestController req = WebRequestController(path: "plant/add");
+    WebRequestController req = WebRequestController(path: "user_plant/add");
 
     req.setBody({
       "name": nameController.text,

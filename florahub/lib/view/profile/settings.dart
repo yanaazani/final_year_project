@@ -1,6 +1,6 @@
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/notification.dart';
-import 'package:florahub/view/plant/plants.dart';
+import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:florahub/view/profile/privacy_page.dart';
 import 'package:florahub/view/user/edit%20profile.dart';
 import 'package:florahub/widgets/constants.dart';
