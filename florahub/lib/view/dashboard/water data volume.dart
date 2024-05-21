@@ -3,6 +3,7 @@ import 'package:florahub/controller/RequestController.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class WaterDataVolume extends StatefulWidget {
@@ -30,8 +31,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   // Daily total volume
   Future<void> getTotalVolumeDaily() async {
-    WebRequestController req =
-        WebRequestController(path: "water/totalVolumeDaily");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "water/totalVolumeDaily", server: "http://$server:8080");
     await req.get();
     try {
       if (req.status() == 200) {
@@ -66,8 +69,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   // Monthly total volume
   Future<void> getTotalVolumeMonthly() async {
-    WebRequestController req =
-        WebRequestController(path: "water/totalVolumeMonthly");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "water/totalVolumeMonthly", server: "http://$server:8080");
     await req.get();
     try {
       if (req.status() == 200) {
@@ -112,8 +117,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   // Yearly total volume
   Future<void> getTotalVolumeYearly() async {
-    WebRequestController req =
-        WebRequestController(path: "water/totalVolumeYearly");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "water/totalVolumeYearly", server: "http://$server:8080");
     await req.get();
     try {
       if (req.status() == 200) {
@@ -137,8 +144,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   // Monthly total cost
   Future<void> getTotalCostMonthly() async {
-    WebRequestController req =
-        WebRequestController(path: "water/totalCostMonthly");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "water/totalCostMonthly", server: "http://$server:8080");
     await req.get();
     try {
       if (req.status() == 200) {
@@ -198,8 +207,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   // Yearly total cost
   Future<void> getTotalCostYearly() async {
-    WebRequestController req =
-        WebRequestController(path: "water/totalCostYearly");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "water/totalCostYearly", server: "http://$server:8080");
     await req.get();
     try {
       if (req.status() == 200) {

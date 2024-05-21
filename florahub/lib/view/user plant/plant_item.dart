@@ -10,6 +10,7 @@ import 'package:florahub/model/plant.dart';
 import 'package:florahub/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantItem extends StatefulWidget {
   final int userId, plantId;
@@ -43,9 +44,11 @@ class _PlantItemState extends State<PlantItem> {
 
   // Function to soft delete the plant
   void softDeletePlant(int plantId, Function(bool) callback) async {
-    WebRequestController req =
-        WebRequestController(path: "user_plant/deletePlant/$plantId");
-
+ final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user_plant/deletePlant/$plantId",
+        server: "http://$server:8080");
     // Send the request to the server
     await req.put();
 

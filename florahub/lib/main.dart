@@ -4,10 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  //WidgetsFlutterBinding.ensureInitialized();
-  //await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -27,6 +28,13 @@ class _MyAppState extends State<MyApp> {
     // The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt.
     // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
     OneSignal.Notifications.requestPermission(true);
+
+    Future.delayed(Duration(seconds: 5), () async {
+      final prefs = await SharedPreferences.getInstance();
+      String ip = "172.20.10.3";
+      await prefs.setString("localhost", ip);
+    });
+
   }
 
   @override

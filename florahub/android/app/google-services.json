@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "721509944057",
+    "project_id": "florahub-ac783",
+    "storage_bucket": "florahub-ac783.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721509944057:android:18adf444332dc16890f028",
+        "android_client_info": {
+          "package_name": "com.example.florahub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721509944057-rfbd571i4bf20mekhes7ge0jg3kapcap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVL5-gsobb_0nJQI59Zk1uomUZJzKfkCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721509944057-rfbd571i4bf20mekhes7ge0jg3kapcap.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721509944057:android:18c205303b7c331590f028",
+        "android_client_info": {
+          "package_name": "com.example.frontend_florahub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721509944057-rfbd571i4bf20mekhes7ge0jg3kapcap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVL5-gsobb_0nJQI59Zk1uomUZJzKfkCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721509944057-rfbd571i4bf20mekhes7ge0jg3kapcap.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

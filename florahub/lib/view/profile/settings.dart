@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/user%20plant/plants.dart';
@@ -7,6 +9,7 @@ import 'package:florahub/widgets/constants.dart';
 import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 import 'package:florahub/controller/RequestController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   final int userId;
@@ -22,9 +25,12 @@ class _SettingsPageState extends State<SettingsPage> {
   late final int userId;
   bool isDarkModeEnabled = false;
   int _selectedIndex = 0;
+
   Future<void> getUser() async {
-    WebRequestController req =
-        WebRequestController(path: "user/details/${widget.userId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user/details/${widget.userId}", server: "http://$server:8080");
 
     await req.get();
     print(req.result());
@@ -34,8 +40,27 @@ class _SettingsPageState extends State<SettingsPage> {
 
       setState(() {
         username = data["username"];
+        fetchProfileImage(widget.userId);
       });
       print(username);
+    }
+  }
+
+  String imageUrl = "assets/images/pinktree.png";
+  Uint8List? _images; // Default image URL
+  Future<void> fetchProfileImage(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/image/getProfileImage/${widget.userId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
     }
   }
 
@@ -91,7 +116,26 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Image.asset("assets/images/pinktree.png"),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 4, color: Colors.white),
+                            boxShadow: [
+                              BoxShadow(
+                                  spreadRadius: 2,
+                                  blurRadius: 10,
+                                  color: Colors.black.withOpacity(0.1)),
+                            ],
+                            shape: BoxShape.circle,
+                            image: _images != null
+                                ? DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: MemoryImage(_images!))
+                                : DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(imageUrl))),
+                      ),
                       Positioned(
                         bottom: 5,
                         top: 10,
@@ -220,7 +264,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           )),
-    bottomNavigationBar: CustomBottomNavigationBar(
+      bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 54, 51, 51),
         unselectedItemColor: Color.fromARGB(255, 165, 173, 165),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddPlants extends StatefulWidget {
   final int userId;
@@ -50,7 +51,10 @@ class _AddPlantsState extends State<AddPlants> {
     /**
        * save the data registered to database
        */
-    WebRequestController req = WebRequestController(path: "user_plant/add");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user_plant/add", server: "http://$server:8080");
 
     req.setBody({
       "name": nameController.text,

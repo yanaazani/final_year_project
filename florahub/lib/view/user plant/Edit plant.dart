@@ -5,6 +5,7 @@ import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPlantPage extends StatefulWidget {
   final int plantId, userId;
@@ -55,8 +56,11 @@ class _EditPlantPageState extends State<EditPlantPage> {
   ];
 
   Future<void> getPlant() async {
-    WebRequestController req =
-        WebRequestController(path: "user_plant/detailPlant/${widget.plantId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user_plant/detailPlant/${widget.plantId}",
+        server: "http://$server:8080");
 
     await req.get();
     print(req.result());
@@ -98,9 +102,11 @@ class _EditPlantPageState extends State<EditPlantPage> {
     if (scheduleTimeController.text.isNotEmpty) {
       requestBody["scheduleTime"] = scheduleTimeController.text;
     }
-
-    WebRequestController req =
-        WebRequestController(path: "user_plant/editPlant/${widget.plantId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user_plant/editPlant/${widget.plantId}",
+        server: "http://$server:8080");
 
     req.setBody(requestBody);
     await req.put();

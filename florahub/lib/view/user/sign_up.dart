@@ -7,7 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
-import 'package:crypto/crypto.dart'; // For hashing password
+import 'package:crypto/crypto.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // For hashing password
 
 class RegisterForm extends StatefulWidget {
   @override
@@ -39,7 +40,10 @@ class _RegisterFormState extends State<RegisterForm> {
       /**
        * save the data registered to database
        */
-      WebRequestController req = WebRequestController(path: "user/signup");
+      final prefs = await SharedPreferences.getInstance();
+      String? server = prefs.getString("localhost");
+      WebRequestController req = WebRequestController(
+          path: "user/signup", server: "http://$server:8080");
 
       req.setBody({
         "email": emailController.text,

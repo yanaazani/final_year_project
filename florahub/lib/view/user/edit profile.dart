@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/profile/settings.dart';
@@ -5,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class EditUserProfile extends StatefulWidget {
   final int userId;
@@ -29,7 +32,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
 
   Future<void> getUser() async {
     WebRequestController req =
-        WebRequestController(path: "user/details/${widget.userId}");
+        WebRequestController(path: "user/details/${widget.userId}", server: '');
 
     await req.get();
     print(req.result());
@@ -46,6 +49,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
   }
 
   Future<void> updateUser() async {
+    uploadImage();
     // Create a map to hold the fields to be updated
     Map<String, dynamic> requestBody = {};
 
@@ -65,10 +69,10 @@ class _EditUserProfileState extends State<EditUserProfile> {
     if (_selectedState != null) {
       requestBody["state"] = _selectedState!;
     }
-
-    WebRequestController req =
-        WebRequestController(path: "user/edit/${widget.userId}");
-
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user/edit/${widget.userId}", server: "http://$server:8080");
     req.setBody(requestBody);
     await req.put();
 
@@ -105,6 +109,7 @@ class _EditUserProfileState extends State<EditUserProfile> {
   }
 
   ImagePicker picker = ImagePicker();
+  File? _image;
 
   /// Get from gallery
   _getFromGallery() async {
@@ -112,7 +117,9 @@ class _EditUserProfileState extends State<EditUserProfile> {
       source: ImageSource.gallery,
     );
     if (pickedFile != null) {
-      setState(() {});
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
@@ -122,17 +129,82 @@ class _EditUserProfileState extends State<EditUserProfile> {
       source: ImageSource.camera,
     );
     if (pickedFile != null) {
-      setState(() {});
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
   String imageUrl = "assets/images/pinktree.png";
   late Uint8List? _images = Uint8List(0);
 
+  Future<void> fetchProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/image/getProfileImage/${widget.userId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
+    }
+  }
+
+// For edit Image
+  Future<void> uploadImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+
+    if (_images == null) {
+      return;
+    }
+
+    final uri = Uri.parse(
+        'http://$server:8080/florahub/image/updateImage/${widget.userId}'); // Replace with your API URL
+    final request = http.MultipartRequest('PUT', uri);
+    request.fields['userId'] = '${widget.userId}'; // Replace with the user ID
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        _image!.path,
+      ),
+    );
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: 'Image is updated successfully',
+          backgroundColor: Colors.white,
+          textColor: Colors.red,
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          fontSize: 16.0,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: 'Image failed to update successfully',
+          backgroundColor: Colors.white,
+          textColor: Colors.red,
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          fontSize: 16.0,
+        );
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getUser(); // Call getUser() method when the widget is initialized
+    getUser();
+    fetchProfileImage(); // Call getUser() method when the widget is initialized
   }
 
   @override
@@ -176,23 +248,26 @@ class _EditUserProfileState extends State<EditUserProfile> {
                       width: 150,
                       height: 150,
                       decoration: BoxDecoration(
-                        border: Border.all(width: 4, color: Colors.white),
-                        boxShadow: [
-                          BoxShadow(
-                            spreadRadius: 2,
-                            blurRadius: 10,
-                            color: Colors.black.withOpacity(0.1),
-                          ),
-                        ],
-                        shape: BoxShape.circle,
-                        image: _images != null
-                            ? DecorationImage(
-                                fit: BoxFit.cover, image: AssetImage(imageUrl))
-                            : DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(imageUrl),
-                              ),
-                      ),
+                          border: Border.all(width: 4, color: Colors.white),
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                            ),
+                          ],
+                          shape: BoxShape.circle,
+                          image: _image == null
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_images!))
+                              : _image != null
+                                  ? DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: FileImage(_image!))
+                                  : DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: AssetImage(imageUrl))),
                     ),
                   ),
                 ],

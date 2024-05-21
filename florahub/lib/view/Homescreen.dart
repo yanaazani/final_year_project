@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,8 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _searchResults = [];
 
   Future<void> getUser() async {
-    WebRequestController req =
-        WebRequestController(path: "user/details/${widget.userId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user/details/${widget.userId}", server: "http://$server:8080");
 
     await req.get();
     print(req.result());
@@ -71,8 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     Future<void> getUser() async {
-      WebRequestController req =
-          WebRequestController(path: "user/details/${widget.userId}");
+      final prefs = await SharedPreferences.getInstance();
+      String? server = prefs.getString("localhost");
+      WebRequestController req = WebRequestController(
+          path: "user/details/${widget.userId}", server: "http://$server:8080");
 
       await req.get();
       print(req.result());

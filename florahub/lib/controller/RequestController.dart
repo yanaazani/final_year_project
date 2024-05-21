@@ -14,7 +14,7 @@ class WebRequestController {
    * 10.0.3.2 -> emulator on Genymotion
    * 10.132.7.13 -> ipconfig for network connection
    **/
-  WebRequestController({required this.path});
+  WebRequestController({required this.path, required String server});
   setBody(Map<String, dynamic> data) {
     _body.clear();
     _body.addAll(data);

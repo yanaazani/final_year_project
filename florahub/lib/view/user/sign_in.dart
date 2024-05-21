@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -32,9 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
   String googleEmail = "";
 
   Future login() async {
-    WebRequestController req = WebRequestController(
-      path: "user/login",
-    );
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req =
+        WebRequestController(path: "user/login", server: "http://$server:8080");
 
     req.setBody({
       'email': emailController.text,
@@ -245,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               icon: FaIcon(
                                 FontAwesomeIcons.google,
                                 size: 30,
-                                 color: Color.fromARGB(255, 214, 54, 54),
+                                color: Color.fromARGB(255, 214, 54, 54),
                               )),
                           IconButton(
                               onPressed: () {},
@@ -256,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               )),
                         ],
                       )),
-                      SizedBox(height: 20),
+                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.center,
                     child: Row(

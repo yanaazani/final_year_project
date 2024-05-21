@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/profile/constants.dart';
 import 'package:florahub/view/profile/privacy_page.dart';
@@ -5,6 +7,7 @@ import 'package:florahub/view/profile/purchase_history.dart';
 import 'package:florahub/widgets/profile_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   final int userId;
@@ -20,8 +23,10 @@ class _ProfilePageState extends State<ProfilePage> {
   late final int userId;
 
   Future<void> getUser() async {
-    WebRequestController req =
-        WebRequestController(path: "user/details/${widget.userId}");
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user/details/${widget.userId}", server: "http://$server:8080");
 
     await req.get();
     print(req.result());
@@ -31,8 +36,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
       setState(() {
         username = data["username"];
+        fetchProfileImage(widget.userId);
       });
       print(username);
+    }
+  }
+
+  String imageUrl = "assets/images/pinktree.png";
+  Uint8List? _images; // Default image URL
+  Future<void> fetchProfileImage(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/image/getProfileImage/${widget.userId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
     }
   }
 
@@ -58,7 +82,25 @@ class _ProfilePageState extends State<ProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
                 ),
-                AvatarImage(),
+                Container(
+      width: 150,
+      height: 150,
+      padding: EdgeInsets.all(8),
+      decoration: avatarDecoration,
+      child: Container(
+        decoration: avatarDecoration,
+        padding: EdgeInsets.all(3),
+        child: Container(
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: _images != null
+                  ? DecorationImage(
+                      fit: BoxFit.cover, image: MemoryImage(_images!))
+                  : DecorationImage(
+                      fit: BoxFit.cover, image: AssetImage(imageUrl))),
+        ),
+      ),
+    ),
                 SizedBox(
                   height: 30,
                 ),
@@ -105,31 +147,6 @@ class AppBarButton extends StatelessWidget {
   }
 }
 
-class AvatarImage extends StatelessWidget {
-  const AvatarImage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      height: 150,
-      padding: EdgeInsets.all(8),
-      decoration: avatarDecoration,
-      child: Container(
-        decoration: avatarDecoration,
-        padding: EdgeInsets.all(3),
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: AssetImage('assets/images/user.png'),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class SocialIcon extends StatelessWidget {
   final Color color;
@@ -158,7 +175,6 @@ class SocialIcon extends StatelessWidget {
 }
 
 class ProfileListItems extends StatelessWidget {
-
   const ProfileListItems({super.key, required int userId});
 
   void navigateToPrivacyPage(BuildContext context) {
@@ -174,8 +190,6 @@ class ProfileListItems extends StatelessWidget {
       MaterialPageRoute(builder: (context) => PurchaseHistoryPage()),
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -211,8 +225,7 @@ class ProfileListItems extends StatelessWidget {
             key: ValueKey('logout'),
             icon: LineAwesomeIcons.alternate_sign_out,
             text: 'Logout',
-            onPressed: () {
-            },
+            onPressed: () {},
           ),
         ],
       ),
