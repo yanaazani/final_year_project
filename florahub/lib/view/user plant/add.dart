@@ -1,5 +1,6 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
 import 'package:florahub/controller/RequestController.dart';
+import 'package:florahub/view/user%20plant/plant_item.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +24,6 @@ class _AddPlantsState extends State<AddPlants> {
     print('User ID add plant: $userId');
   }
 
-  String _selectedWaterSchedule = '30 minutes'; // Default value
   String? _selectedType;
 
   TextEditingController nameController = TextEditingController();
@@ -45,9 +45,6 @@ class _AddPlantsState extends State<AddPlants> {
   }
 
   Future add() async {
-    // Convert watering schedule to the format "HH:mm:ss"
-    String formattedScheduleTime =
-        convertHoursToTimeFormat(_selectedWaterSchedule);
     /**
        * save the data registered to database
        */
@@ -60,7 +57,6 @@ class _AddPlantsState extends State<AddPlants> {
       "name": nameController.text,
       "description": descriptionController.text,
       "type": _selectedType,
-      "scheduleTime": formattedScheduleTime,
       "userId": userId.toString(),
     });
 
@@ -73,7 +69,9 @@ class _AddPlantsState extends State<AddPlants> {
         artDialogArgs: ArtDialogArgs(
             type: ArtSweetAlertType.success,
             text: "Congrats, you have add new plant!",
-            onConfirm: () {}),
+            onConfirm: () {
+              Navigator.pop(context);
+            }),
       );
     } else {
       Fluttertoast.showToast(
@@ -271,60 +269,6 @@ class _AddPlantsState extends State<AddPlants> {
                           color: Colors.black,
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.schedule),
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintText: 'Select watering schedule',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(45),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.green[400]!,
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(45),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.green[600]!,
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(45),
-                    ),
-                  ),
-                  value: _selectedWaterSchedule,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedWaterSchedule = newValue!;
-                    });
-                  },
-                  items: <String>[
-                    '30 minutes',
-                    '1 hour',
-                    '2 hours',
-                    '3 hours',
-                    '5 hours',
-                    '6 hours',
-                    '7 hours',
-                    '8 hours',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
                     );
                   }).toList(),
                 ),

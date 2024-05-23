@@ -33,7 +33,6 @@ class _MyAppState extends State<MyApp> {
       String ip = "172.20.10.3";
       await prefs.setString("localhost", ip);
     });
-
   }
 
   @override

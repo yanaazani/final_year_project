@@ -38,6 +38,11 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
   late int plantId;
   int _selectedIndex = 0;
 
+  Future<void> _refreshData() async {
+    //await getChildrenData();
+    await fetchPlants();
+  }
+
   Future<void> fetchPlants() async {
     try {
       // Make an HTTP GET request to fetch the user's plants from the backend
@@ -84,157 +89,169 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 80,
-              ),
-              Row(
-                children: [
-                  Text(
-                    'My Plants',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 33,
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 80,
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'My Plants',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 33,
+                      ),
                     ),
-                  ),
-                  Padding(padding: EdgeInsets.only(left: 160)),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      color: Constants.primaryColor.withOpacity(.15),
+                    Padding(padding: EdgeInsets.only(left: 160)),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Constants.primaryColor.withOpacity(.15),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AddPlants(
+                                      userId: userId,
+                                    )), // Navigate to AddPage
+                          );
+                        },
+                        icon: Icon(Icons.add),
+                      ),
                     ),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddPlants(
-                                    userId: userId,
-                                  )), // Navigate to AddPage
-                        );
-                      },
-                      icon: Icon(Icons.add),
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                  child: ListView.builder(
-                      itemCount: plants.length,
-                      itemBuilder: (context, index) {
-                        final plant = plants[index];
-                        return GestureDetector(
-                            onTap: () {
-                              // Navigate to the PlantItem screen when a plant is tapped
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PlantItem(
-                                      userId: userId, plantId: plant.id),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              child: Column(children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => PlantItem(
-                                              userId: userId,
-                                              plantId: plant.id)),
-                                    );
-                                  },
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      color: Colors
-                                          .transparent, // Set the background color to green
-                                    ),
-                                    child: Container(
+                  ],
+                ),
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: plants.length,
+                        itemBuilder: (context, index) {
+                          final plant = plants[index];
+                          return GestureDetector(
+                              onTap: () {
+                                // Navigate to the PlantItem screen when a plant is tapped
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlantItem(
+                                        userId: userId, plantId: plant.id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                child: Column(children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => PlantItem(
+                                                userId: userId,
+                                                plantId: plant.id)),
+                                      );
+                                    },
+                                    child: DecoratedBox(
                                       decoration: BoxDecoration(
-                                        color: Constants.primaryColor
-                                            .withOpacity(.1),
-                                        borderRadius: BorderRadius.circular(50),
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        color: Colors
+                                            .transparent, // Set the background color to green
                                       ),
-                                      height: 150.0,
-                                      padding: const EdgeInsets.only(left: 10),
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      width: size.width,
-                                      child: Row(
-                                        children: [
-                                          Stack(
-                                            clipBehavior: Clip.none,
-                                            children: [
-                                              Container(
-                                                width: 100.0,
-                                                height: 120.0,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green[100],
-                                                  shape: BoxShape.rectangle,
-                                                  borderRadius:
-                                                      BorderRadius.circular(30),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Constants.primaryColor
+                                              .withOpacity(.1),
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                        ),
+                                        height: 150.0,
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        width: size.width,
+                                        child: Row(
+                                          children: [
+                                            Stack(
+                                              clipBehavior: Clip.none,
+                                              children: [
+                                                Container(
+                                                  width: 100.0,
+                                                  height: 120.0,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green[100],
+                                                    shape: BoxShape.rectangle,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
                                                 ),
-                                              ),
-                                              Positioned(
-                                                top: 10,
-                                                left: 10,
-                                                child: SizedBox(
-                                                  height: 110.0,
-                                                  child: Image.asset(
-                                                      "assets/images/kids.png"),
+                                                Positioned(
+                                                  top: 10,
+                                                  left: 10,
+                                                  child: SizedBox(
+                                                    height: 110.0,
+                                                    child: Image.asset(
+                                                        "assets/images/kids.png"),
+                                                  ),
                                                 ),
-                                              ),
-                                              Positioned(
-                                                top: 15,
-                                                left: 140,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      plant.name,
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18,
-                                                        color: Constants
-                                                            .blackColor,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 10),
-                                                    Text("Type: ${plant.type}"),
-                                                    const SizedBox(height: 10),
-                                                    SizedBox(
-                                                      width:
-                                                          150, // Set your desired width here
-                                                      child: OutlinedButton(
-                                                        onPressed: () {},
-                                                        child: Text(
-                                                          "More",
-                                                          style: TextStyle(
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                        style: OutlinedButton
-                                                            .styleFrom(
-                                                          side: BorderSide(
-                                                            color: const Color(
-                                                                0xff296e48),
-                                                          ),
+                                                Positioned(
+                                                  top: 15,
+                                                  left: 140,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        plant.name,
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                          color: Constants
+                                                              .blackColor,
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      Text(
+                                                          "Type: ${plant.type}"),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      SizedBox(
+                                                        width:
+                                                            150, // Set your desired width here
+                                                        child: OutlinedButton(
+                                                          onPressed: () {},
+                                                          child: Text(
+                                                            "More",
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                          style: OutlinedButton
+                                                              .styleFrom(
+                                                            side: BorderSide(
+                                                              color: const Color(
+                                                                  0xff296e48),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                              /*Positioned(
+                                                /*Positioned(
                               left: 280,
                               child: IconButton(
                                 icon:
@@ -244,18 +261,19 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
                                 },
                               ),
                             )*/
-                                            ],
-                                          ),
-                                        ],
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ]),
-                            ));
-                      })),
-            ],
-          )),
+                                ]),
+                              ));
+                        })),
+              ],
+            )),
+      ),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 54, 51, 51),

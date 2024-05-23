@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:florahub/controller/RequestController.dart';
-import 'package:florahub/view/dashboard/storage%20details.dart';
 import 'package:florahub/view/dashboard/water%20data%20volume.dart';
 import 'package:florahub/view/user%20plant/Edit%20plant.dart';
 import 'package:florahub/view/user%20plant/Manual%20watering.dart';
@@ -31,7 +30,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.3:8080/florahub/user_plant/detail/$userId/$plantId'));
+        'http://172.20.10.20:8080/florahub/user_plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -44,11 +43,10 @@ class _PlantItemState extends State<PlantItem> {
 
   // Function to soft delete the plant
   void softDeletePlant(int plantId, Function(bool) callback) async {
- final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     String? server = prefs.getString("localhost");
     WebRequestController req = WebRequestController(
-        path: "user_plant/deletePlant/$plantId",
-        server: "http://$server:8080");
+        path: "user_plant/deletePlant/$plantId", server: "http://$server:8080");
     // Send the request to the server
     await req.put();
 
@@ -446,7 +444,8 @@ class _PlantItemState extends State<PlantItem> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                ScheduleWateringPage()),
+                                                ScheduleWateringPage(
+                                                    plantId: plantId)),
                                       );
                                     },
                                     mini: true,
