@@ -30,7 +30,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.20:8080/florahub/user_plant/detail/$userId/$plantId'));
+        'http://172.20.10.3:8080/florahub/user_plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -66,8 +66,6 @@ class _PlantItemState extends State<PlantItem> {
     // TODO: implement initState
     super.initState();
     futurePlant = fetchPlantDetail(widget.userId, widget.plantId);
-    print('User ID: $userId');
-    print('Plant ID: $plantId');
   }
 
   void AutoWateringSystem() async {

@@ -56,7 +56,6 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
         if (responseData is List<dynamic>) {
           // If the response data is a list, update the plants list
           setState(() {
-            //plants = responseData.map((json) => Plant.fromJson(json)).toList();
             plants = responseData
                 .map((json) => Plant.fromJson(json))
                 .where((plant) => !plant.deleted) // Filter out deleted plants

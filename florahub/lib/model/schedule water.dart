@@ -3,12 +3,15 @@ class ScheduleWater {
   String startTime = "";
   int duration = 0;
   int plantId = 0;
+  bool deleted = false;
+
 
   ScheduleWater({
     this.id = 0,
     this.startTime = "",
     this.duration = 0,
     this.plantId = 0,
+    this.deleted = false,
   });
 
   factory ScheduleWater.fromJson(Map<String, dynamic> json) {
@@ -18,7 +21,8 @@ class ScheduleWater {
     return ScheduleWater(
       id: json['id'] ?? 0,
       startTime: json['startTime'] ?? "",
-      duration: json['duration'] ?? "",
+      duration: json['duration'] ?? 0,
+      deleted: json['deleted'] ?? false,
       plantId: plantId,
     );
   }
@@ -40,6 +44,7 @@ class ScheduleWater {
       'id': id,
       'startTime': startTime,
       'duration': duration,
+      'deleted': deleted,
       'plantId': plantId,
     };
   }

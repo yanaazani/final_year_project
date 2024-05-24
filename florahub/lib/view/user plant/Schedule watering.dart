@@ -20,7 +20,7 @@ class ScheduleWateringPage extends StatefulWidget {
 }
 
 class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
-  late final int plantId;
+  late final int plantId, scheduleId;
   _ScheduleWateringPageState({required this.plantId});
   // Variables to store user inputs
   int selectedHour = 12; // Initialize with a non-conflicting value
@@ -83,17 +83,26 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     try {
       // Make an HTTP GET request to fetch the schedules from the backend
       http.Response response = await http.get(Uri.parse(
-          "http://172.20.10.3:8080/florahub/scheduledWatering/plant/${widget.plantId}"));
+          "http://172.20.10.3:8080/florahub/scheduledWatering/plant/${widget.plantId}?deleted=0"));
 
       print('Response body: ${response.body}');
       // Check the response status
       if (response.statusCode == 200) {
         final dynamic responseData = json.decode(response.body);
+        print('Response Data: $responseData');
         if (responseData is List<dynamic>) {
-          for (var schedule in schedules) {
-            print(
-                'Start Time: ${schedule.startTime}, Duration: ${schedule.duration}');
-          }
+          print('\n\nResponse Data2: $responseData');
+          setState(() {
+            schedules = responseData
+                .map((data) => ScheduleWater.fromJson(data))
+                .where((schedule) => schedule.deleted == false)
+                .toList();
+
+            // Convert schedule times to formatted strings
+            schedules.forEach((schedule) {
+              schedule.startTime = formatScheduleTime(schedule.startTime);
+            });
+          });
         } else {
           // Handle unexpected response format
           print('Unexpected response format: $responseData');
@@ -105,6 +114,47 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     } catch (e) {
       // Handle any exceptions
       print('Error fetching schedules: $e');
+    }
+  }
+
+  String formatScheduleTime(String time) {
+    // Split the time string into components
+    List<String> components = time.split(':');
+    int hour = int.parse(components[0]);
+    int minute = int.parse(components[1]);
+
+    // Convert hour to 12-hour format
+    String period = hour >= 12 ? 'PM' : 'AM';
+    if (hour > 12) {
+      hour -= 12;
+    } else if (hour == 0) {
+      hour = 12;
+    }
+
+    // Format the time string
+    String formattedTime = '$hour:${minute.toString().padLeft(2, '0')} $period';
+    return formattedTime;
+  }
+
+// Function to soft delete the schedule
+  void softDeleteSchedule(int scheduleId, Function(bool) callback) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+      path: "scheduledWatering/deleteSchedule/$scheduleId",
+      server: "http://$server:8080",
+    );
+    // Send the request to the server
+    await req.put();
+
+    if (req.status() == 200) {
+      // Schedule soft deleted successfully
+      print('Schedule soft deleted successfully');
+      callback(true); // Invoke the callback with true
+    } else {
+      // Failed to soft delete schedule
+      print('Failed to soft delete schedule');
+      callback(false); // Invoke the callback with false
     }
   }
 
@@ -137,9 +187,21 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
             SizedBox(height: 20),
             _buildDurationSelector(),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: add,
-              child: Text('Add Schedule'),
+            OutlinedButton(
+              onPressed: () {
+                add();
+              },
+              child: Text(
+                "Add Schedule",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: const Color(0xff296e48),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             Expanded(
@@ -147,55 +209,132 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
                 itemCount: schedules.length,
                 itemBuilder: (context, index) {
                   final schedule = schedules[index];
-                  return Container(
-                    child: Column(
-                      children: [
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.transparent,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Constants.primaryColor.withOpacity(.1),
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            height: 100.0,
-                            padding: const EdgeInsets.only(left: 10),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            width: size.width,
-                            child: Row(
-                              children: [
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Positioned(
-                                      top: 15,
-                                      left: 140,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                  return Dismissible(
+                    key: Key(
+                        schedule.id.toString()), // Unique key for each schedule
+                    onDismissed: (direction) {
+                      // Remove the schedule from the list
+                      setState(() {
+                        schedules.removeAt(index);
+                        setState(() {
+                          softDeleteSchedule(schedule.id, (bool success) {
+                            if (success) {
+                              // Handle success
+                              print('Schedule soft deleted successfully');
+                            } else {
+                              // Handle failure
+                              print('Failed to soft delete Scheduless');
+                            }
+                          });
+                        });
+                      });
+                      // Optionally, you can add code to delete the schedule from the backend
+                    },
+                    background: Container(
+                      color: Colors.red, // Background color when swiping
+                      child: Icon(Icons.delete), // Delete icon
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {},
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Colors
+                                      .transparent, // Set the background color to green
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Constants.primaryColor.withOpacity(.1),
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  height: 100.0,
+                                  padding: const EdgeInsets.only(left: 20),
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  width: size.width,
+                                  child: Row(
+                                    children: [
+                                      Stack(
+                                        clipBehavior: Clip.none,
                                         children: [
-                                          // Display schedule details here
-                                          Text(
-                                            // Changes made here to display schedule startTime and duration
-                                            'Time: ${schedule.startTime} - Duration: ${schedule.duration} seconds',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Constants.blackColor,
+                                          Container(
+                                            width: 90.0,
+                                            height: 80.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green[100],
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            left: 5,
+                                            child: SizedBox(
+                                              height: 90.0,
+                                              child: Image.asset(
+                                                  "assets/images/Schedule.png"),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 10,
+                                            left: 110,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  schedule.startTime,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 30,
+                                                    color: Constants.blackColor,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "${schedule.duration} seconds pump on",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15,
+                                                    color: Constants.blackColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: size.width - 40,
+                                            child: ListTile(
+                                              trailing: Switch(
+                                                value: isOn,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    isOn =
+                                                        value; // Update the boolean variable
+                                                  });
+                                                },
+                                              ),
+                                              onTap: () {
+                                                // Toggle dark mode
+                                              },
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   );
                 },
