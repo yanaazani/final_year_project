@@ -136,7 +136,7 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     return formattedTime;
   }
 
-// Function to soft delete the schedule
+  // Function to soft delete the schedule
   void softDeleteSchedule(int scheduleId, Function(bool) callback) async {
     final prefs = await SharedPreferences.getInstance();
     String? server = prefs.getString("localhost");
@@ -154,6 +154,50 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     } else {
       // Failed to soft delete schedule
       print('Failed to soft delete schedule');
+      callback(false); // Invoke the callback with false
+    }
+  }
+
+  // Function to on the schedule
+  void isOnToggle(int scheduleId, Function(bool) callback) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+      path: "scheduledWatering/toggleOn/$scheduleId",
+      server: "http://$server:8080",
+    );
+    // Send the request to the server
+    await req.put();
+
+    if (req.status() == 200) {
+      // Schedule toggled successfully
+      print('Schedule toggled successfully');
+      callback(true); // Invoke the callback with true
+    } else {
+      // Failed to toggle schedule
+      print('Failed to toggle schedule');
+      callback(false); // Invoke the callback with false
+    }
+  }
+
+  // Function to on the schedule
+  void isOffToggle(int scheduleId, Function(bool) callback) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+      path: "scheduledWatering/toggleOff/$scheduleId",
+      server: "http://$server:8080",
+    );
+    // Send the request to the server
+    await req.put();
+
+    if (req.status() == 200) {
+      // Schedule toggled successfully
+      print('Schedule toggled successfully');
+      callback(true); // Invoke the callback with true
+    } else {
+      // Failed to toggle schedule
+      print('Failed to toggle schedule');
       callback(false); // Invoke the callback with false
     }
   }
@@ -312,17 +356,57 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
                                             width: size.width - 40,
                                             child: ListTile(
                                               trailing: Switch(
-                                                value: isOn,
+                                                value: schedule.isOn,
                                                 onChanged: (bool value) {
-                                                  setState(() {
-                                                    isOn =
-                                                        value; // Update the boolean variable
-                                                  });
+                                                  if (value) {
+                                                    // Toggle on
+                                                    isOnToggle(schedule.id,
+                                                        (bool success) {
+                                                      if (success) {
+                                                        setState(() {
+                                                          schedule.isOn = value;
+                                                        });
+                                                      } else {
+                                                        // Handle failure case
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                              "Failed to update schedule state. Please try again.",
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                          textColor:
+                                                              Colors.white,
+                                                          toastLength:
+                                                              Toast.LENGTH_LONG,
+                                                          fontSize: 16.0,
+                                                        );
+                                                      }
+                                                    });
+                                                  } else {
+                                                    // Toggle off
+                                                    isOffToggle(schedule.id,
+                                                        (bool success) {
+                                                      if (success) {
+                                                        setState(() {
+                                                          schedule.isOn = value;
+                                                        });
+                                                      } else {
+                                                        // Handle failure case
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                              "Failed to update schedule state. Please try again.",
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                          textColor:
+                                                              Colors.white,
+                                                          toastLength:
+                                                              Toast.LENGTH_LONG,
+                                                          fontSize: 16.0,
+                                                        );
+                                                      }
+                                                    });
+                                                  }
                                                 },
                                               ),
-                                              onTap: () {
-                                                // Toggle dark mode
-                                              },
                                             ),
                                           ),
                                         ],

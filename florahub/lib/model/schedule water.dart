@@ -3,14 +3,15 @@ class ScheduleWater {
   String startTime = "";
   int duration = 0;
   int plantId = 0;
+  bool isOn = false;
   bool deleted = false;
-
 
   ScheduleWater({
     this.id = 0,
     this.startTime = "",
     this.duration = 0,
     this.plantId = 0,
+    this.isOn = false,
     this.deleted = false,
   });
 
@@ -22,6 +23,7 @@ class ScheduleWater {
       id: json['id'] ?? 0,
       startTime: json['startTime'] ?? "",
       duration: json['duration'] ?? 0,
+      isOn: json['isOn'] ?? false,
       deleted: json['deleted'] ?? false,
       plantId: plantId,
     );
@@ -44,6 +46,7 @@ class ScheduleWater {
       'id': id,
       'startTime': startTime,
       'duration': duration,
+      'isOn': isOn,
       'deleted': deleted,
       'plantId': plantId,
     };

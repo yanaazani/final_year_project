@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/dashboard/water%20data%20volume.dart';
+import 'package:florahub/view/user%20plant/Auto%20watering.dart';
 import 'package:florahub/view/user%20plant/Edit%20plant.dart';
 import 'package:florahub/view/user%20plant/Manual%20watering.dart';
 import 'package:florahub/view/user%20plant/Schedule%20watering.dart';
@@ -10,6 +11,7 @@ import 'package:florahub/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlantItem extends StatefulWidget {
   final int userId, plantId;
@@ -68,17 +70,11 @@ class _PlantItemState extends State<PlantItem> {
     futurePlant = fetchPlantDetail(widget.userId, widget.plantId);
   }
 
-  void AutoWateringSystem() async {
-    try {
-      var url = 'http://172.20.10.7:5000/?action=auto';
-      var response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        print('Manual watering activate sent successfully');
-      } else {
-        print('Failed to activate manual watering request');
-      }
-    } catch (e) {
-      print('Error activate manual watering request: $e');
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -423,7 +419,12 @@ class _PlantItemState extends State<PlantItem> {
                                     backgroundColor:
                                         Color.fromARGB(187, 201, 228, 202),
                                     onPressed: () {
-                                      AutoWateringSystem();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AutoWateringPage()),
+                                      );
                                     },
                                     mini: true,
                                     child: const Icon(Icons.auto_awesome,

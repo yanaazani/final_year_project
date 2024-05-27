@@ -135,25 +135,6 @@ def auto_watering_system():
         except Exception as e:
             print("Error sending data:", e)
 
-# Function to set the scheduled time
-def set_scheduled_time(hour, minute):
-    global scheduled_time
-    scheduled_time = (hour, minute)
-    print(f"Scheduled time set to {hour:02}:{minute:02}")
-
-def check_scheduled_time():
-    global scheduled_time
-    current_time = get_current_time()
-    if current_time is None:
-        return
-    current_hour = int(current_time[11:13])
-    current_minute = int(current_time[14:16])
-    if scheduled_time and (current_hour, current_minute) == scheduled_time:
-        print("Scheduled time reached. Activating water pump.")
-        pin_water_pump.on()
-        time.sleep(5)
-        pin_water_pump.off()
-
 # HTML content for the control panel
 html = """<!DOCTYPE html>
 <html>

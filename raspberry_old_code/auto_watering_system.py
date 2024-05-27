@@ -49,8 +49,8 @@ pin_water_pump = Pin(8, Pin.OUT)
 # some variables for internal use
 calibrate_count = 0
 auto_calibrate = True
-SENSOR_MAX = 430
-SENSOR_MIN = 352
+SENSOR_MAX = 0
+SENSOR_MIN = 999
 
 flow_frequency = 0
 flow_rate = 0
