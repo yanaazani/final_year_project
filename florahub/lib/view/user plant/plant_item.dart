@@ -301,7 +301,10 @@ class _PlantItemState extends State<PlantItem> {
                                                             69) // Change color to green
                                                         ),
                                                   ),
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    _launchURL(
+                                                        'http://172.20.10.3:3000/public-dashboards/b9ce6054116e4d92a3b497a35bb8bea3'); // Replace with your URL
+                                                  },
                                                   child: Text(
                                                     "Explore Trends",
                                                     style: GoogleFonts.poppins(

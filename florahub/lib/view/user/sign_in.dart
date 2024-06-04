@@ -58,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
         toastLength: Toast.LENGTH_LONG,
         fontSize: 16.0,
       );
+
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.push(
           context,

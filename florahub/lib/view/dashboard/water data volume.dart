@@ -213,10 +213,13 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
         path: "water/totalCostYearly", server: "http://$server:8080");
     await req.get();
     try {
+       List<SalesData> yearlyCostData = [];
       if (req.status() == 200) {
         req.result();
         print(req.result());
-        //setState(() {});
+        setState(() {
+          _lineChartData = yearlyCostData;
+        });
       }
     } catch (e) {
       print('Error fetching data: $e');
@@ -485,15 +488,14 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                             minimum: 2020, // Set minimum value to 2020
                             maximum:
                                 2024, // Set maximum value to 2024 or any other appropriate maximum value
-                            interval:
-                                1, // Set the interval to 1 to display each year
+                            interval: 1,
                             labelFormat: '{value}',
                           ),
                           primaryYAxis: NumericAxis(
                             labelFormat: '{value} m³',
                             isVisible: true,
                             minimum: 0,
-                            maximum: 100,
+                            maximum: 120,
                             interval: 20,
                           ),
                         ),
@@ -676,7 +678,7 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                           series: <CartesianSeries>[
                             LineSeries<SalesData, double>(
                               // Use LineSeries explicitly
-                              name: 'Sales',
+                              name: 'Cost (RM)',
                               dataSource: _lineChartData,
                               xValueMapper: (SalesData sales, _) =>
                                   sales.year.toDouble(),
@@ -687,11 +689,19 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                           ],
                           primaryXAxis: NumericAxis(
                             edgeLabelPlacement: EdgeLabelPlacement.shift,
+                            isVisible: true,
+                            minimum: 2020, // Set minimum value to 2020
+                            maximum:
+                                2024, // Set maximum value to 2024 or any other appropriate maximum value
+                            interval: 1,
+                            labelFormat: '{value}',
                           ),
                           primaryYAxis: NumericAxis(
-                            labelFormat: "{value}M",
-                            numberFormat:
-                                NumberFormat.simpleCurrency(decimalDigits: 0),
+                            labelFormat: "RM{value}",
+                            isVisible: true,
+                            minimum: 0,
+                            maximum: 100,
+                            interval: 20,
                           ),
                         ),
                         Row(
@@ -699,23 +709,6 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                             SizedBox(
                               width: 20,
                             ),
-                            /*Container(
-                              width: 27,
-                              height: 13,
-                              decoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  borderRadius: BorderRadius.circular(20)),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Volume',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black),
-                            ),*/
                             SizedBox(
                               width: 20,
                             ),

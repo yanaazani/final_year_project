@@ -1,4 +1,7 @@
 import 'dart:typed_data';
+import 'package:florahub/view/profile/feedback.dart';
+import 'package:florahub/view/user/change_password.dart';
+import 'package:florahub/view/user/sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/notification.dart';
@@ -197,7 +200,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: Text('Change Password'),
                 trailing: Icon(Icons.lock),
                 onTap: () {
-                  // Navigate to notification settings
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChangePassword(userId: userId)),
+                  );
                 },
               ),
               SizedBox(
@@ -209,27 +216,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                   fontSize: 23,
                 ),
-              ),
-              ListTile(
-                title: Text('Notifications'),
-                trailing: Icon(Icons.notifications_none),
-                onTap: () {
-                  // Navigate to notification settings
-                },
-              ),
-              ListTile(
-                title: Text('Dark Mode'),
-                trailing: Switch(
-                  value: isDarkModeEnabled,
-                  onChanged: (bool value) {
-                    setState(() {
-                      isDarkModeEnabled = value; // Update the boolean variable
-                    });
-                  },
-                ),
-                onTap: () {
-                  // Toggle dark mode
-                },
               ),
               ListTile(
                 title: Text('Help and Support'),
@@ -260,6 +246,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 onTap: () {
                   // Navigate to language settings
+                },
+              ),
+              ListTile(
+                title: Text('Feedback'),
+                trailing: Icon(Icons.feedback_outlined),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FeedbackPage()),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Log Out '),
+                trailing: Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
                 },
               ),
             ],

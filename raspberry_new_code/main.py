@@ -56,15 +56,6 @@ RATE_3 = 2.02  # Above 35 cubic meters
 url = "http://172.20.10.3/xampp/save_data.php"
 fetch_url = "http://172.20.10.3/xampp/fetch_data.php"
 
-def fetch_watering_data():
-    try:
-        response = urequests.get(fetch_url)
-        data = response.json()
-        return data
-    except Exception as e:
-        print("Error fetching watering data:", e)
-        return []
-
 def flow_callback(pin):
         global flow_frequency
         flow_frequency += 1
@@ -89,7 +80,7 @@ def auto_watering_system():
         if percent >= 70:
             print("(DRY)")
             pin_water_pump.on()
-            time.sleep(5)  # Run the water pump for 5 seconds
+            time.sleep(5)
             pin_water_pump.off()
 
             data = {
@@ -104,14 +95,7 @@ def auto_watering_system():
                 response.close()
             except Exception as e:
                 print("Error sending data:", e)
-# Function to create a socket and listen on a specific port
-def create_socket_and_listen(port):
-    addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
-    s = socket.socket()
-    s.bind(addr)
-    s.listen(1)
-    print(f'Listening on port {port}')
-    return s
+
 def connect_flow_sensor():
         global flow_frequency, previous_millis, total_milliliters
         date = get_current_time()  # Get current date and time
@@ -148,10 +132,51 @@ def connect_flow_sensor():
                 response.close()
             except Exception as e:
                 print("Error sending data:", e)
+
+def fetch_watering_data():
+    try:
+        response = urequests.get(fetch_url)
+        data = response.json()
+        return data
+    except Exception as e:
+        print("Error fetching watering data:", e)
+        return []
+def schedule_watering(data):
+    try:
+        for schedule in data:
+            start_time = schedule['startTime']
+            duration = schedule['duration']
+            is_on = schedule['isOn']
+            deleted = schedule['deleted']
+            plant_id = schedule['plantId']
+            
+            if is_on and not deleted:
+                # Here, you can implement the logic to schedule the watering
+                print(f"Scheduling watering for Plant ID: {plant_id} at {start_time} for {duration} minutes.")
+                # Assuming you have a function to handle the watering
+                handle_watering(start_time, duration)
+    except Exception as e:
+        print("Error in schedule_watering:", e)
+def handle_watering(start_time, duration):
+    # Implement the logic to handle the watering based on the start time and duration
+    print(f"Starting watering at {start_time} for {duration} minutes.")
+    pin_water_pump.on()
+    time.sleep(duration * 60)  # Duration is in minutes
+    pin_water_pump.off()
+
+# Function to create a socket and listen on a specific port
+def create_socket_and_listen(port):
+    addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
+    s = socket.socket()
+    s.bind(addr)
+    s.listen(1)
+    print(f'Listening on port {port}')
+    return s
 # Create sockets for each function
 manual_socket = create_socket_and_listen(5000)
 auto_socket = create_socket_and_listen(6001)
 flow_socket = create_socket_and_listen(7002)
+schedule_socket = create_socket_and_listen(8003)
 
 
 while True:
@@ -184,5 +209,13 @@ while True:
             elif 'action=stop_auto' in request_str:
                 print("Auto-watering system stopped.")
                 break
+        
+        elif s == schedule_socket:
+            if 'action=schedule' in request_str:
+                watering_data = fetch_watering_data()
+                schedule_watering(watering_data)
+            elif 'action=stop_schedule' in request_str:
+                print("Scheduled watering stopped.")
+                break
 
-    time.sleep(0.1)  # Add a short delay to avoid high CPU usage
+    time.sleep(0.1)
