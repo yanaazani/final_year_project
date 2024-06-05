@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/notification.dart';
@@ -9,6 +10,7 @@ import 'package:florahub/widgets/constants.dart';
 import 'package:florahub/widgets/navigation%20bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantsPage extends StatelessWidget {
   final int userId;
@@ -72,6 +74,24 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
     } catch (e) {
       // Handle any exceptions
       print('Error fetching plants: $e');
+    }
+  }
+
+  String imageUrl = "assets/images/kids.png";
+  Uint8List? _images; // Default image URL
+  Future<void> fetchProfileImage(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/plantImage/getProfileImage/${plantId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
     }
   }
 

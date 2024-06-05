@@ -19,6 +19,7 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
   List<ChartColumnData> chartData = [];
   Map<String, double> _pieChartData = {};
   List<SalesData> _lineChartData = [];
+  List<SalesData> _lineChartDataCost = [];
   List<ChartColumnData> _dailyChartData = [];
   TooltipBehavior _tooltipBehavior = TooltipBehavior(enable: true);
   final dataMap = <String, double>{
@@ -213,12 +214,12 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
         path: "water/totalCostYearly", server: "http://$server:8080");
     await req.get();
     try {
-       List<SalesData> yearlyCostData = [];
+      List<SalesData> yearlyCostData = [];
       if (req.status() == 200) {
         req.result();
         print(req.result());
         setState(() {
-          _lineChartData = yearlyCostData;
+          _lineChartDataCost = yearlyCostData;
         });
       }
     } catch (e) {
@@ -233,8 +234,9 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
     getTotalVolumeMonthly();
     getTotalVolumeYearly();
     getTotalCostMonthly();
-    //getTotalCostYearly();
+    getTotalCostYearly();
     _lineChartData = getChartData();
+    _lineChartDataCost = getChartDataCost();
     _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
@@ -273,6 +275,10 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
 
   List<SalesData> getChartData() {
     return _lineChartData;
+  }
+
+  List<SalesData> getChartDataCost() {
+    return _lineChartDataCost;
   }
 
   Widget _volume() {
@@ -332,8 +338,8 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                             labelFormat: '{value} m³',
                             isVisible: true,
                             minimum: 0,
-                            maximum: 50,
-                            interval: 1,
+                            maximum: 10,
+                            interval: 2,
                           ), // y-axis
                           series: <CartesianSeries>[
                             ColumnSeries<ChartColumnData, String>(
@@ -679,7 +685,7 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                             LineSeries<SalesData, double>(
                               // Use LineSeries explicitly
                               name: 'Cost (RM)',
-                              dataSource: _lineChartData,
+                              dataSource: _lineChartDataCost,
                               xValueMapper: (SalesData sales, _) =>
                                   sales.year.toDouble(),
                               yValueMapper: (SalesData sales, _) => sales.sales,

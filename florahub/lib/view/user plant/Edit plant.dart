@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:flutter/material.dart';
@@ -76,13 +78,107 @@ class _EditPlantPageState extends State<EditPlantPage> {
     }
   }
 
+  ImagePicker picker = ImagePicker();
+  File? _image;
+
+  /// Get from gallery
+  _getFromGallery() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  /// Get from Camera
+  _getFromCamera() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  String imageUrl = "assets/images/kids.png";
+  late Uint8List? _images = Uint8List(0);
+
+  Future<void> fetchProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/plantImage/getProfileImage/${widget.plantId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
+    }
+  }
+
+  // For edit Image
+  Future<void> uploadImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+
+    if (_images == null) {
+      return;
+    }
+
+    final uri = Uri.parse(
+        'http://$server:8080/florahub/plantImage/updateImage/${widget.plantId}'); // Replace with your API URL
+    final request = http.MultipartRequest('PUT', uri);
+    request.fields['plantId'] = '${widget.plantId}'; // Replace with the user ID
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'image',
+        _image!.path,
+      ),
+    );
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: 'Image is updated successfully',
+          backgroundColor: Colors.white,
+          textColor: Colors.red,
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          fontSize: 16.0,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: 'Image failed to update',
+          backgroundColor: Colors.white,
+          textColor: Colors.red,
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          fontSize: 16.0,
+        );
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getPlant(); // Call getUser() method when the widget is initialized
+    getPlant();
+    fetchProfileImage();
   }
 
   Future<void> updatePlant() async {
+    uploadImage();
     // Create a map to hold the fields to be updated
     Map<String, dynamic> requestBody = {};
 
@@ -143,8 +239,6 @@ class _EditPlantPageState extends State<EditPlantPage> {
     }
   }
 
-  ImagePicker picker = ImagePicker();
-
   Future<void> _showImagePickerDialog() async {
     String? selectedImagePath = await showDialog<String>(
       context: context,
@@ -189,9 +283,6 @@ class _EditPlantPageState extends State<EditPlantPage> {
     }
   }
 
-  String imageUrl = "assets/images/kids.png";
-  late Uint8List? _images = Uint8List(0);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,14 +313,17 @@ class _EditPlantPageState extends State<EditPlantPage> {
                       width: 250,
                       height: 300,
                       decoration: BoxDecoration(
-                        image: _images != null
-                            ? DecorationImage(
-                                fit: BoxFit.cover, image: AssetImage(imageUrl))
-                            : DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage(imageUrl),
-                              ),
-                      ),
+                          image: _image == null
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: MemoryImage(_images!))
+                              : _image != null
+                                  ? DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: FileImage(_image!))
+                                  : DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: AssetImage(imageUrl))),
                     ),
                   ),
                 ],
@@ -248,9 +342,58 @@ class _EditPlantPageState extends State<EditPlantPage> {
                 ),
                 child: TextButton(
                   // Changed from IconButton to TextButton
-                  onPressed: _showImagePickerDialog,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text(
+                          "Upload Image",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25,
+                          ),
+                        ),
+                        content: Text(
+                          "Edit your image",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              _getFromCamera();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              child: Text(
+                                "Camera",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              _getFromGallery();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              child: Text(
+                                "Gallery",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   child: Text(
-                    "Change Photo", // Added text for the button
+                    "Edit Photo", // Added text for the button
                     style: TextStyle(
                         color: Colors.black), // Adjust text style as needed
                   ),

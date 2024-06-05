@@ -1,6 +1,5 @@
 import 'package:florahub/widgets/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 
 class PlantDetailPage extends StatelessWidget {
   final Map<String, dynamic> plantDetails;

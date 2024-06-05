@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/dashboard/water%20data%20volume.dart';
 import 'package:florahub/view/user%20plant/Auto%20watering.dart';
@@ -36,10 +37,31 @@ class _PlantItemState extends State<PlantItem> {
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
+      setState(() {
+        fetchProfileImage(widget.plantId);
+      });
       return Plant.fromJson(jsonDecode(response.body));
     } else {
       // If the server did not return a 200 OK response, throw an exception
       throw Exception('Failed to load plant detail');
+    }
+  }
+
+  String imageUrl = "assets/images/kids.png";
+  Uint8List? _images; // Default image URL
+  Future<void> fetchProfileImage(int userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    final response = await http.get(Uri.parse(
+        'http://$server:8080/florahub/plantImage/getProfileImage/${widget.plantId}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _images = response.bodyBytes;
+      });
+    } else {
+      // Handle errors, e.g., display a default image
+      return null;
     }
   }
 
@@ -237,9 +259,28 @@ class _PlantItemState extends State<PlantItem> {
                             top: 5,
                             left: MediaQuery.of(context).size.width / 2 -
                                 200, // Center horizontally
-                            child: SizedBox(
+                            child: Container(
+                              width: 240,
                               height: 240,
-                              child: Image.asset("assets/images/kids.png"),
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(width: 0, color: Colors.white),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        spreadRadius: 2,
+                                        blurRadius: 10,
+                                        color: const Color.fromARGB(
+                                                255, 123, 193, 126)
+                                            .withOpacity(0.1)),
+                                  ],
+                                  shape: BoxShape.rectangle,
+                                  image: _images != null
+                                      ? DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: MemoryImage(_images!))
+                                      : DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(imageUrl))),
                             ),
                           ),
                           Positioned(

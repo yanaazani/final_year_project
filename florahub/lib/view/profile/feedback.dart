@@ -122,6 +122,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         ],
                       ),
                     ),
+                    Expanded(
+                      child: content(),
+                    ),
                   ],
                 ),
                 const SizedBox(width: 15.0),
@@ -246,9 +249,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
       case "Efficiency":
         // Logic for handling "Efficiency" rating
         return rating;
-      case "Personal Profile":
-        // Logic for handling "Personal Profile" rating
-        return rating;
       default:
         // Handle the default case if the category is not recognized
         return 0.0;
@@ -275,8 +275,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
               double loginTroubleRating = getRating("Login Trouble", rating);
               double repairQualityRating = getRating("Repair Quality", rating);
               double efficiencyRating = getRating("Repair Quality", rating);
-              double personalProfileRating =
-                  getRating("Personal Profile", rating);
             })
       ],
     );
