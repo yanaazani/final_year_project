@@ -99,7 +99,7 @@ def auto_watering_system():
         pin_water_pump.off()
 
     # Check time interval for flow rate calculation
-    current_millis = utime.ticks_ms()
+    current_millis = time.ticks_ms() # type: ignore
     if (current_millis - previous_millis) > interval:
         pulse1Sec = flow_frequency
         flow_frequency = 0
@@ -138,33 +138,37 @@ def auto_watering_system():
 # HTML content for the control panel
 html = """<!DOCTYPE html>
 <html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .buttonGreen { background-color: #4CAF50; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-        .buttonRed { background-color: #D11D53; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-        .buttonBlue { background-color: #4A90E2; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <center>
-        <h1>Control Panel</h1>
-        <br>
-        <form>
-            <h2>Manual Watering System</h2>
-            <button class="buttonGreen" name="action" value="start" type="submit">Start Water Pump</button>
-            <button class="buttonRed" name="action" value="stop" type="submit">Stop Water Pump</button>
-            <h2>Auto Watering System</h2>
-            <button class="buttonBlue" name="action" value="auto" type="submit">Activate Auto-Watering System</button>
-            <button class="buttonRed" name="action" value="stop" type="submit">Deactivate Auto-Watering System</button>
-        </form>
-    </center>
-</body>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            .buttonManualStart { background-color: #ACE1AF; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
+            .buttonManualStop { background-color: #D37676; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
+            .buttonAutoStart { background-color: #9BB0C1; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
+            .buttonAutoStop { background-color: #80BCBD; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
+            .buttonScheduleOn { background-color: #AC87C5; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <center>
+            <h1>Control Panel</h1>
+            <br>
+            <form>
+                <h2>Manual Watering System</h2>
+                <button class="buttonManualStart" name="action" value="start" type="submit">Start Water Pump</button>
+                <button class="buttonManualStop" name="action" value="stop" type="submit">Stop Water Pump</button>
+                <h2>Auto Watering System</h2>
+                <button class="buttonAutoStart" name="action" value="auto" type="submit">Activate Auto-Watering System</button>
+                <button class="buttonAutoStop" name="action" value="auto-stop" type="submit">Deactivate Auto-Watering System</button>
+                <h2>Schedule Watering System</h2>
+                <button class="buttonScheduleOn" name="action" value="schedule" type="submit">Activate Scheduled Watering</button>
+            </form>
+        </center>
+    </body>
 </html>
 """
 
 # Create socket
-addr = socket.getaddrinfo('0.0.0.0', 8000)[0][-1]
+addr = socket.getaddrinfo('0.0.0.0', 5011)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
@@ -188,11 +192,45 @@ while True:
         elif 'action=auto' in request_str:
             while 'action=auto' in request_str:
                 auto_watering_system()
-
-        elif 'action=stop_auto' in request_str:
-            print("Auto-watering system stopped.")
-            # Exiting the loop will stop auto-watering system
-            break
+        elif 'action=auto-stop' in request_str:
+            pass
+        elif 'action=schedule' in request_str:
+            # Fetch data from fetch_data.php
+            try:
+                schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
+                schedule_data = schedule_response.json()
+                schedule_response.close()
+                
+                if len(schedule_data) > 0:  # Check if there is any scheduled data
+                    schedule_item = schedule_data[0]
+                    # Extract start time and duration from the fetched data
+                    start_time = schedule_data["startTime"]
+                    duration_seconds = schedule_data["duration"]
+                
+                    # Get current time
+                    current_time = utime.localtime()
+                    current_timestamp = utime.mktime(current_time)
+                    
+                    # Convert start time to timestamp
+                    scheduled_timestamp = utime.mktime(utime.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
+                    
+                    # Calculate delay until scheduled time
+                    delay_until_scheduled = scheduled_timestamp - current_timestamp
+                
+                    # Wait until scheduled time
+                    if delay_until_scheduled > 0:
+                        time.sleep(delay_until_scheduled)
+                    
+                    # Activate water pump for the specified duration
+                    pin_water_pump.on()
+                    time.sleep(duration_seconds)
+                    pin_water_pump.off()
+                    
+                    print("Scheduled watering completed.")
+                else:
+                    print("No active scheduled watering found.")
+            except Exception as e:
+                print("Error activating scheduled watering:", e)
 
         # Send HTML response
         cl.send('HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'.encode())

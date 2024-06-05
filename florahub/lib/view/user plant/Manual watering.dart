@@ -15,7 +15,7 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
   void sendManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.6:5000/?action=start';
+      var url = 'http://172.20.10.7:5011/?action=start';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -36,7 +36,7 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
   void deactivateManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.6:5000/?action=stop';
+      var url = 'http://172.20.10.7:5011/?action=stop';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

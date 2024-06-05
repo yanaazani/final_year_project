@@ -9,24 +9,6 @@ import socket
 import urequests  # type: ignore
 from machine import Pin, ADC # type: ignore
 
-# Wi-Fi credentials
-ssid = "yanaezani"
-password = "yana1012"
-def connect_to_wifi(ssid, password, timeout=10):
-    wifi = network.WLAN(network.STA_IF)
-    wifi.active(True)
-    wifi.connect(ssid, password)
-    
-    start_time = time.time()
-    while not wifi.isconnected():
-        if time.time() - start_time > timeout:
-            print("Failed to connect to Wi-Fi")
-            return False
-        print("Trying to connect to Wi-Fi...")
-        time.sleep(1)
-
-    print("Connected to Wi-Fi:", wifi.ifconfig())
-    return True
 
 def get_current_time():
         try:
@@ -133,14 +115,7 @@ def connect_flow_sensor():
             except Exception as e:
                 print("Error sending data:", e)
 
-def fetch_watering_data():
-    try:
-        response = urequests.get(fetch_url)
-        data = response.json()
-        return data
-    except Exception as e:
-        print("Error fetching watering data:", e)
-        return []
+
 def schedule_watering(data):
     try:
         for schedule in data:
@@ -157,12 +132,6 @@ def schedule_watering(data):
                 handle_watering(start_time, duration)
     except Exception as e:
         print("Error in schedule_watering:", e)
-def handle_watering(start_time, duration):
-    # Implement the logic to handle the watering based on the start time and duration
-    print(f"Starting watering at {start_time} for {duration} minutes.")
-    pin_water_pump.on()
-    time.sleep(duration * 60)  # Duration is in minutes
-    pin_water_pump.off()
 
 # Function to create a socket and listen on a specific port
 def create_socket_and_listen(port):
@@ -173,20 +142,32 @@ def create_socket_and_listen(port):
     print(f'Listening on port {port}')
     return s
 # Create sockets for each function
-manual_socket = create_socket_and_listen(5000)
-auto_socket = create_socket_and_listen(6001)
-flow_socket = create_socket_and_listen(7002)
-schedule_socket = create_socket_and_listen(8003)
+manual_socket = create_socket_and_listen(5001)
+auto_socket = create_socket_and_listen(6002)
+flow_socket = create_socket_and_listen(7003)
+schedule_socket = create_socket_and_listen(8004)
 
+ssid = "yanaezani"
+password = "yana1012"
 
 while True:
     
     wifi = network.WLAN(network.STA_IF)
     wifi.active(True)
     wifi.connect(ssid, password)
+    
+    timeout = 10
+    start_time = time.time()
+    while not wifi.isconnected():
+        if time.time() - start_time > timeout:
+            print("Failed to connect to Wi-Fi")
+        print("Trying to connect to Wi-Fi...")
+        time.sleep(1)
+
+        print("Connected to Wi-Fi:", wifi.ifconfig())
+    
     readable, _, _ = select.select([manual_socket, auto_socket, flow_socket], [], [])
 
-    fetch_watering_data()
 
     for s in readable:
         cl, addr = s.accept()
@@ -219,3 +200,21 @@ while True:
                 break
 
     time.sleep(0.1)
+
+    # Placeholder functions
+    def fetch_watering_data():
+        try:
+            response = urequests.get(fetch_url)
+            data = response.json()
+            return data
+        except Exception as e:
+            print("Error fetching watering data:", e)
+            return []
+
+    def handle_watering(start_time, duration):
+        # Implement the logic to handle the watering based on the start time and duration
+        print(f"Starting watering at {start_time} for {duration} minutes.")
+        pin_water_pump.on()
+        time.sleep(duration * 60)  # Duration is in minutes
+        pin_water_pump.off()
+        pass
