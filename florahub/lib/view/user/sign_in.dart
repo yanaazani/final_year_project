@@ -250,13 +250,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 size: 30,
                                 color: Color.fromARGB(255, 214, 54, 54),
                               )),
-                          IconButton(
-                              onPressed: () {},
-                              icon: FaIcon(
-                                FontAwesomeIcons.facebookF,
-                                size: 30,
-                                color: const Color.fromARGB(255, 11, 118, 206),
-                              )),
                         ],
                       )),
                   SizedBox(height: 20),

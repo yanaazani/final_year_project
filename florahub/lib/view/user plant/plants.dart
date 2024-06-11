@@ -321,15 +321,6 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => NotificationPage(
-                          userId: userId,
-                        )),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
                     builder: (context) => SettingsPage(userId: userId)),
               );
               break;
@@ -344,10 +335,6 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.local_florist),
             label: 'Plants',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

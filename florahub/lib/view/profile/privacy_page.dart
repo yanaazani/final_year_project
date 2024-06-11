@@ -12,12 +12,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green[100],
+        backgroundColor: Colors.white,
         title: Text('Privacy Page'),
       ),
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.green[100],
+          color: Colors.white,
           padding: EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,6 +39,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 'these settings, you can tailor your experience with our app to '
                 'suit your privacy needs.',
                 style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.justify,
               ),
               SizedBox(height: 20),
               Text(
@@ -59,7 +60,10 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 'services, we may collect your location data to offer location-based '
                 'services. Rest assured, we handle your data with the utmost care and'
                 ' only use it to improve your experience with our app.',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
               ),
               SizedBox(height: 20),
               Text(
@@ -71,7 +75,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
               ),
               SizedBox(height: 10),
               Text(
-                'At [App Name], we believe in transparency and respect for your '
+                'At FloraHub, we believe in transparency and respect for your '
                 'privacy rights. You have the right to control your personal data '
                 'and understand how it is used. In this section,'
                 ' you'
@@ -82,6 +86,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 ' your privacy and ensuring that your data is handled responsibly '
                 'and in accordance with applicable laws and regulations.',
                 style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.justify,
               ),
             ],
           ),

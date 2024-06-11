@@ -66,6 +66,7 @@ dependencies:
   pie_chart: ^5.4.0
   shared_preferences: ^2.2.3
   flutter_rating_bar: ^4.0.1
+  flutter_emoji_feedback: ^0.3.0
 
 dev_dependencies:
   flutter_test:

@@ -19,10 +19,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Plants',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.notifications_outlined),
-          label: 'Notification',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.emoji_people),
           label: 'Profile',
         ),

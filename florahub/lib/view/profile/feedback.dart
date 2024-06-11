@@ -1,18 +1,70 @@
+import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:florahub/controller/RequestController.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_emoji_feedback/flutter_emoji_feedback.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedbackPage extends StatefulWidget {
-  const FeedbackPage({super.key});
+  final int userId;
+  FeedbackPage({super.key, required this.userId});
 
   @override
-  State<FeedbackPage> createState() => _FeedbackPageState();
+  State<FeedbackPage> createState() => _FeedbackPageState(userId: userId);
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
+  _FeedbackPageState({required this.userId});
+  late final int userId;
   TextEditingController _commentController = TextEditingController();
-  double rating = 0.0;
+  int rating = 0;
+
+  Future add() async {
+    /**
+       * save the data registered to database
+       */
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "feedback/add", server: "http://$server:8080");
+
+    DateTime now = DateTime.now();
+    String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+    req.setBody({
+      "rate": rating.toString(),
+      "dateTime": formattedDateTime,
+      "message": _commentController.text,
+      "userId": userId.toString(),
+    });
+
+    await req.post();
+
+    print(req.result());
+    if (req.result() != null) {
+      ArtSweetAlert.show(
+        context: context,
+        artDialogArgs: ArtDialogArgs(
+            type: ArtSweetAlertType.success,
+            text: "Thankyou for your feedback.",
+            onConfirm: () {
+              Navigator.pop(context);
+            }),
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "Something is wrong. \nPlease try again later.",
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+        toastLength: Toast.LENGTH_LONG,
+        fontSize: 16.0,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,9 +88,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   child: Lottie.network(
                       "https://lottie.host/1bf323c9-4be4-4d8c-8654-53753e2cb550/rVAIOlx2HY.json"),
                 ),
-                //SizedBox(height: 10),
                 const Text(
-                  'Tell us what can be imrpoved?',
+                  'Give Feedback',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                      color: Colors.black),
+                ),
+                SizedBox(height: 10),
+                const Text(
+                  'What do you think of the app?',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -47,89 +106,27 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 const SizedBox(
                   height: 25.0,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green[300],
-                          ),
-                          const SizedBox(width: 10.0),
-                          Text(
-                            "Login Trouble",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: content(),
-                    ),
-                  ],
-                ),
                 const SizedBox(width: 15.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green[300],
-                          ),
-                          const SizedBox(width: 10.0),
-                          Text(
-                            "Repair Quality",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: content(),
-                    ),
-                  ],
+                EmojiFeedback(
+                  animDuration: const Duration(milliseconds: 300),
+                  curve: Curves.bounceIn,
+                  inactiveElementScale: .5,
+                  onChanged: (value) {
+                    setState(() {
+                      rating = value;
+                    });
+                    print(value);
+                  },
                 ),
-                const SizedBox(width: 15.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green[300],
-                          ),
-                          const SizedBox(width: 10.0),
-                          Text(
-                            "Efficiency",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: content(),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 15.0),
                 const SizedBox(
                   height: 25.0,
+                ),
+                const Text(
+                  "Do you have any thoughts that you'd like to share?",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.black),
                 ),
                 Container(
                   height: 200.0,
@@ -218,7 +215,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {},
+                        onPressed: () async {
+                          add();
+                        },
                         child: const Text("Submit",
                             style: TextStyle(
                                 fontSize: 15,
@@ -235,48 +234,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ],
             ),
           )),
-    );
-  }
-
-  double getRating(String category, double rating) {
-    switch (category) {
-      case "Login Trouble":
-        // Logic for handling "Login Trouble" rating
-        return rating;
-      case "Repair Quality":
-        // Logic for handling "Repair Quality" rating
-        return rating;
-      case "Efficiency":
-        // Logic for handling "Efficiency" rating
-        return rating;
-      default:
-        // Handle the default case if the category is not recognized
-        return 0.0;
-    }
-  }
-
-  Widget content() {
-    return Row(
-      children: [
-        RatingBar.builder(
-            initialRating: 0,
-            minRating: 1,
-            direction: Axis.horizontal,
-            allowHalfRating: false,
-            itemCount: 5,
-            itemSize: 30,
-            itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                ),
-            onRatingUpdate: (double value) {
-              rating = value;
-              // Assuming you want to get the rating for "Login Trouble" option
-              double loginTroubleRating = getRating("Login Trouble", rating);
-              double repairQualityRating = getRating("Repair Quality", rating);
-              double efficiencyRating = getRating("Repair Quality", rating);
-            })
-      ],
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:florahub/view/user/change_password.dart';
 import 'package:florahub/view/user/sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/view/Homescreen.dart';
-import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:florahub/view/profile/privacy_page.dart';
 import 'package:florahub/view/user/edit%20profile.dart';
@@ -234,7 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 },
               ),
-              ListTile(
+              /*ListTile(
                 title: Text('Language'),
                 trailing: Text(
                   'English',
@@ -247,14 +246,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () {
                   // Navigate to language settings
                 },
-              ),
+              ),*/
               ListTile(
                 title: Text('Feedback'),
                 trailing: Icon(Icons.feedback_outlined),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FeedbackPage()),
+                    MaterialPageRoute(builder: (context) => FeedbackPage(userId: userId)),
                   );
                 },
               ),
@@ -300,17 +299,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           userId: userId,
                         )),
               );
-              break; // No need to navigate, as already on PlantsPage
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NotificationPage(
-                          userId: userId,
-                        )),
-              );
               break;
-            case 3:
+            case 2:
               break;
           }
         },
@@ -323,10 +313,6 @@ class _SettingsPageState extends State<SettingsPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.local_florist),
             label: 'Plants',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

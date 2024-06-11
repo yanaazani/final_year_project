@@ -704,17 +704,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           userId: userId,
                         )),
               );
-              break; // No need to navigate, as already on PlantsPage
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NotificationPage(
-                          userId: userId,
-                        )),
-              );
               break;
-            case 3:
+            case 2:
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -732,10 +723,6 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.local_florist),
             label: 'Plants',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

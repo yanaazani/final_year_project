@@ -310,7 +310,7 @@ class _PlantItemState extends State<PlantItem> {
                                               ),
                                             ),
                                             SizedBox(height: 20),
-                                            Image.asset(
+                                            /**Image.asset(
                                               "assets/images/report.png",
                                               width:
                                                   150, // Adjust the width as needed
@@ -318,7 +318,7 @@ class _PlantItemState extends State<PlantItem> {
                                                   150, // Adjust the height as needed
                                               // You can adjust other properties like width and height according to your requirements
                                             ),
-                                            Center(
+                                             Center(
                                               child: Text(
                                                 "See how your plants are\n doing and improve care.",
                                                 textAlign: TextAlign.center,
@@ -355,7 +355,7 @@ class _PlantItemState extends State<PlantItem> {
                                                   ),
                                                 ),
                                               ),
-                                            ),
+                                            ), */
                                             //SizedBox(height: 20),
                                             Image.asset(
                                               "assets/images/analysis.png",
