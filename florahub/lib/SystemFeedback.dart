@@ -31,8 +31,18 @@ class _SystemFeedbackState extends State<SystemFeedback> {
           setState(() {
             feedbackList = responseData
                 .where((item) => item != null) // Filter out null items
-                .map((json) => Feedback.fromJson(json as Map<String, dynamic>))
-                .toList();
+                .map((json) {
+                  try {
+                    return Feedback.fromJson(json as Map<String, dynamic>);
+                  } catch (e) {
+                    print('Error parsing feedback item: $e');
+                    return null;
+                  }
+                })
+                .where((item) =>
+                    item != null) // Filter out items that failed to parse
+                .toList()
+                .cast<Feedback>(); // Ensure the list is of type List<Feedback>
           });
         } else {
           print('Unexpected response format: $responseData');
@@ -88,10 +98,10 @@ class Feedback {
 
   factory Feedback.fromJson(Map<String, dynamic> json) {
     return Feedback(
-      user: User.fromJson(json['user']),
-      rate: json['rate'],
-      message: json['message'],
-      dateTime: json['dateTime'],
+      user: User.fromJson(json['userId']),
+      rate: int.tryParse(json['rate'].toString()) ?? 0,
+      message: json['message'] ?? "",
+      dateTime: json['dateTime'] ?? "",
     );
   }
 }
@@ -103,7 +113,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      username: json['username'],
+      username: json['username'] ?? "",
     );
   }
 }
