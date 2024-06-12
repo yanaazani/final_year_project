@@ -237,6 +237,35 @@ while True:
             duration = int(request_str.split('duration=')[1].split(' ')[0])
             set_scheduled_time(hour, minute, period, duration)
 
+
+        schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
+        schedule_data = schedule_response.json()
+        schedule_response.close()
+        
+        if len(schedule_data) > 0:  # Check if there is any scheduled data
+            schedule_item = schedule_data[0]
+            # Extract start time and duration from the fetched data
+            start_time = schedule_data["startTime"]
+            duration_seconds = schedule_data["duration"]
+        
+            current_time = utime.localtime()
+            current_timestamp = utime.mktime(current_time)
+            
+            start_hour, start_minute, start_second = map(int, start_time.split(':'))
+            start_time_today = utime.mktime((current_time[0], current_time[1], current_time[2],
+                                                start_hour, start_minute, start_second,
+                                                current_time[6], current_time[7]))
+            
+            end_time_today = start_time_today + duration_seconds
+            
+            if start_time_today <= current_timestamp <= end_time_today:
+                print("Scheduled watering time active")
+                pin_water_pump.on()
+                time.sleep(duration_seconds)  # Run the water pump for the scheduled duration
+                pin_water_pump.off()
+            else:
+                print("Scheduled watering time not active")
+
         # Check for scheduled time activation
         check_scheduled_time()
 

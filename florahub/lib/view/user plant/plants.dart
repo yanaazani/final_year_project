@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/view/Homescreen.dart';
-import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/user%20plant/add.dart';
 import 'package:florahub/view/user%20plant/plant_item.dart';
 import 'package:florahub/view/profile/settings.dart';

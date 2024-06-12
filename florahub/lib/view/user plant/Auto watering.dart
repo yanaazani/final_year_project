@@ -15,7 +15,7 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
   void activateAuto() async {
     try {
-      var url = 'http://172.20.10.7:5011/?action=auto';
+      var url = 'http://172.20.10.7:5012/?action=auto';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -36,7 +36,7 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
   void deactive() async {
     try {
-      var url = 'http://172.20.10.7:5011/?action=stop_auto';
+      var url = 'http://172.20.10.7:5012/?action=stop_auto';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

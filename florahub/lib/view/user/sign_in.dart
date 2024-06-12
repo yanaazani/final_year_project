@@ -1,8 +1,10 @@
+import 'package:florahub/SystemFeedback.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/user/forgot_password.dart';
 import 'package:florahub/view/user/google_sign_in.dart';
 import 'package:florahub/view/user/sign_up.dart';
+import 'package:florahub/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -118,7 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(height: 10),
                 Center(
                   child: Text(
                     'Hello, Welcome Back!',
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(top: 380.0),
+            padding: const EdgeInsets.only(top: 360.0),
             child: Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
@@ -146,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 color: Colors.white,
               ),
-              height: 445,
+              height: 465,
               width: double.infinity,
               child: Column(
                 children: [
@@ -227,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text('Sign In'),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Text(
                     'Or Sign In With',
                     style: TextStyle(
@@ -252,7 +253,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               )),
                         ],
                       )),
-                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.center,
                     child: Row(
@@ -283,6 +283,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SystemFeedback(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'System Feedback',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 63, 63, 63),
+                      ),
+                      //style: TextStyle(color: Color(0xff654321), fontSize: 25),
                     ),
                   ),
                 ],

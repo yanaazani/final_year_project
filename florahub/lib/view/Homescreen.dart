@@ -3,7 +3,6 @@ import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/model/plants.dart';
 import 'package:florahub/view/user%20plant/search%20results%20page.dart';
 import 'package:florahub/view/profile/detail_page.dart';
-import 'package:florahub/view/notification.dart';
 import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:florahub/view/profile/settings.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -113,15 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ); // Navigate to PlantsScreen
         break;
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => NotificationPage(
-                    userId: userId,
-                  )),
-        ); // Navigate to NotificationScreen
-        break;
-      case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => SettingsPage(userId: userId)),

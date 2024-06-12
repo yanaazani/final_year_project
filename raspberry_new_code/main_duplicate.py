@@ -159,8 +159,7 @@ html = """<!DOCTYPE html>
                 <h2>Auto Watering System</h2>
                 <button class="buttonAutoStart" name="action" value="auto" type="submit">Activate Auto-Watering System</button>
                 <button class="buttonAutoStop" name="action" value="auto-stop" type="submit">Deactivate Auto-Watering System</button>
-                <h2>Schedule Watering System</h2>
-                <button class="buttonScheduleOn" name="action" value="schedule" type="submit">Activate Scheduled Watering</button>
+            
             </form>
         </center>
     </body>
@@ -168,7 +167,7 @@ html = """<!DOCTYPE html>
 """
 
 # Create socket
-addr = socket.getaddrinfo('0.0.0.0', 5011)[0][-1]
+addr = socket.getaddrinfo('0.0.0.0', 5012)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
@@ -183,7 +182,34 @@ while True:
         request_str = request.decode('utf-8')
         print("Request:")
         print(request_str)
-    
+        
+        schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
+        schedule_data = schedule_response.json()
+        schedule_response.close()
+        
+        if len(schedule_data) > 0:  # Check if there is any scheduled data
+            schedule_item = schedule_data[0]
+            # Extract start time and duration from the fetched data
+            start_time = schedule_data["startTime"]
+            duration_seconds = schedule_data["duration"]
+        
+            current_time = utime.localtime()
+            current_timestamp = utime.mktime(current_time)
+            
+            start_hour, start_minute, start_second = map(int, start_time.split(':'))
+            start_time_today = utime.mktime((current_time[0], current_time[1], current_time[2],
+                                                start_hour, start_minute, start_second,
+                                                current_time[6], current_time[7]))
+            
+            end_time_today = start_time_today + duration_seconds
+            
+            if start_time_today <= current_timestamp <= end_time_today:
+                print("Scheduled watering time active")
+                pin_water_pump.on()
+                time.sleep(duration_seconds)  # Run the water pump for the scheduled duration
+                pin_water_pump.off()
+            else:
+                print("Scheduled watering time not active")
         # Check if request contains action parameter
         if 'action=start' in request_str:
             pin_water_pump.on()
@@ -194,44 +220,7 @@ while True:
                 auto_watering_system()
         elif 'action=auto-stop' in request_str:
             pass
-        elif 'action=schedule' in request_str:
-            # Fetch data from fetch_data.php
-            try:
-                schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
-                schedule_data = schedule_response.json()
-                schedule_response.close()
-                
-                if len(schedule_data) > 0:  # Check if there is any scheduled data
-                    schedule_item = schedule_data[0]
-                    # Extract start time and duration from the fetched data
-                    start_time = schedule_data["startTime"]
-                    duration_seconds = schedule_data["duration"]
-                
-                    # Get current time
-                    current_time = utime.localtime()
-                    current_timestamp = utime.mktime(current_time)
-                    
-                    # Convert start time to timestamp
-                    scheduled_timestamp = utime.mktime(utime.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
-                    
-                    # Calculate delay until scheduled time
-                    delay_until_scheduled = scheduled_timestamp - current_timestamp
-                
-                    # Wait until scheduled time
-                    if delay_until_scheduled > 0:
-                        time.sleep(delay_until_scheduled)
-                    
-                    # Activate water pump for the specified duration
-                    pin_water_pump.on()
-                    time.sleep(duration_seconds)
-                    pin_water_pump.off()
-                    
-                    print("Scheduled watering completed.")
-                else:
-                    print("No active scheduled watering found.")
-            except Exception as e:
-                print("Error activating scheduled watering:", e)
-
+        
         # Send HTML response
         cl.send('HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'.encode())
         cl.send(html.encode())
