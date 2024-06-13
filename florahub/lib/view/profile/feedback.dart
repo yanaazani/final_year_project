@@ -83,11 +83,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Padding(
+                /* Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Lottie.network(
                       "https://lottie.host/1bf323c9-4be4-4d8c-8654-53753e2cb550/rVAIOlx2HY.json"),
-                ),
+                ),*/
                 const Text(
                   'Give Feedback',
                   style: TextStyle(

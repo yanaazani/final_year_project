@@ -1,4 +1,5 @@
 import 'package:florahub/SystemFeedback.dart';
+import 'package:florahub/controller/OneSignalController.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/user/forgot_password.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -60,7 +62,11 @@ class _LoginScreenState extends State<LoginScreen> {
         toastLength: Toast.LENGTH_LONG,
         fontSize: 16.0,
       );
-
+      //OneSignal.login(userId.toString());
+      OneSignalController notify = OneSignalController();
+      String targetUser = userId.toString();
+      notify.sendNotification("Login",
+          "Your booking appointment has successfully booked", targetUser);
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.push(
           context,

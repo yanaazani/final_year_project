@@ -20,17 +20,20 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    // Remove this method to stop OneSignal Debugging
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-    OneSignal.initialize("9f87fbb2-2689-4a31-bd92-87b3038f433b");
-
+    OneSignal.Debug.setAlertLevel(OSLogLevel.none);
+    OneSignal.initialize("dcb557a8-6999-47e7-a23b-228b4a28e3bd");
+    OneSignal.Notifications.requestPermission(true);
+    OneSignal.Notifications.addPermissionObserver((state) {
+      print("Has permission " + state.toString());
+    });
     // The promptForPushNotificationsWithUserResponse function will show the iOS or Android push notification prompt.
     // We recommend removing the following code and instead using an In-App Message to prompt for notification permission
-    OneSignal.Notifications.requestPermission(true);
+   
 
     Future.delayed(Duration(seconds: 5), () async {
       final prefs = await SharedPreferences.getInstance();
-      String ip = "172.20.10.3";
+      String ip = "10.131.73.5";
       await prefs.setString("localhost", ip);
     });
   }
