@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/controller/RequestController.dart';
@@ -75,6 +76,69 @@ class _EditPlantPageState extends State<EditPlantPage> {
         description = data["description"] ?? "";
         scheduleTime = data["scheduleTime"] ?? "";
       });
+    }
+  }
+
+  Future<void> updatePlant() async {
+    uploadImage();
+    // Create a map to hold the fields to be updated
+    Map<String, dynamic> requestBody = {};
+
+    // Add fields to the request body if they are not empty
+    if (nameController.text.isNotEmpty) {
+      requestBody["name"] = nameController.text;
+    }
+
+    if (typeController.text.isNotEmpty) {
+      requestBody["type"] = typeController.text;
+    }
+
+    if (descriptionController.text.isNotEmpty) {
+      requestBody["description"] = descriptionController.text;
+    }
+
+    if (scheduleTimeController.text.isNotEmpty) {
+      requestBody["scheduleTime"] = scheduleTimeController.text;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    WebRequestController req = WebRequestController(
+        path: "user_plant/editPlant/${widget.plantId}",
+        server: "http://$server:8080");
+
+    req.setBody(requestBody);
+    await req.put();
+
+    print(req.result());
+
+    // Check the status of the response
+    if (req.status() == 200) {
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Update successfully",
+          desc: "Your plant information has been updated successfully",
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlantsPage(userId: userId)),
+              );
+            });
+          }).show();
+    } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        title: "Update failed!",
+        desc: "Please try again later",
+      ).show();
     }
   }
 
@@ -175,68 +239,6 @@ class _EditPlantPageState extends State<EditPlantPage> {
     super.initState();
     getPlant();
     fetchProfileImage();
-  }
-
-  Future<void> updatePlant() async {
-    uploadImage();
-    // Create a map to hold the fields to be updated
-    Map<String, dynamic> requestBody = {};
-
-    // Add fields to the request body if they are not empty
-    if (nameController.text.isNotEmpty) {
-      requestBody["name"] = nameController.text;
-    }
-
-    if (typeController.text.isNotEmpty) {
-      requestBody["type"] = typeController.text;
-    }
-
-    if (descriptionController.text.isNotEmpty) {
-      requestBody["description"] = descriptionController.text;
-    }
-
-    if (scheduleTimeController.text.isNotEmpty) {
-      requestBody["scheduleTime"] = scheduleTimeController.text;
-    }
-    final prefs = await SharedPreferences.getInstance();
-    String? server = prefs.getString("localhost");
-    WebRequestController req = WebRequestController(
-        path: "user_plant/editPlant/${widget.plantId}",
-        server: "http://$server:8080");
-
-    req.setBody(requestBody);
-    await req.put();
-
-    print(req.result());
-
-    // Check the status of the response
-    if (req.status() == 200) {
-      Fluttertoast.showToast(
-        msg: 'Update successfully',
-        backgroundColor: Colors.white,
-        textColor: const Color.fromARGB(255, 3, 1, 1),
-        gravity: ToastGravity.CENTER,
-        toastLength: Toast.LENGTH_SHORT,
-        fontSize: 16.0,
-      );
-      // Navigate to the settings page after a short delay
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PlantsPage(userId: userId)),
-        );
-      });
-    } else {
-      // Display an error toast if the update fails
-      Fluttertoast.showToast(
-        msg: 'Update failed!',
-        backgroundColor: Colors.white,
-        textColor: Colors.red,
-        gravity: ToastGravity.CENTER,
-        toastLength: Toast.LENGTH_SHORT,
-        fontSize: 16.0,
-      );
-    }
   }
 
   Future<void> _showImagePickerDialog() async {

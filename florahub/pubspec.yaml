@@ -67,6 +67,7 @@ dependencies:
   shared_preferences: ^2.2.3
   flutter_rating_bar: ^4.0.1
   flutter_emoji_feedback: ^0.3.0
+  awesome_dialog: ^3.2.1
 
 dev_dependencies:
   flutter_test:

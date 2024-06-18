@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/SystemFeedback.dart';
 import 'package:florahub/controller/OneSignalController.dart';
 import 'package:florahub/controller/RequestController.dart';
@@ -5,12 +6,9 @@ import 'package:florahub/view/Homescreen.dart';
 import 'package:florahub/view/user/forgot_password.dart';
 import 'package:florahub/view/user/google_sign_in.dart';
 import 'package:florahub/view/user/sign_up.dart';
-import 'package:florahub/widgets/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -54,33 +52,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (req.status() == 200) {
       var userId = userData["id"];
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Successful login!",
+          desc:
+              "Welcome back to FloraHub, we are so excited to welcome you back!",
+          btnOkOnPress: () {
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(userId: userId)),
+              );
+            });
+          }).show();
 
-      Fluttertoast.showToast(
-        msg: "Successful login!",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
-      //OneSignal.login(userId.toString());
       OneSignalController notify = OneSignalController();
       String targetUser = userId.toString();
-      notify.sendNotification("Login",
-          "Your booking appointment has successfully booked", targetUser);
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(userId: userId)),
-        );
-      });
+      notify.sendNotification("Hello", "Welcome back to FloraHub!", targetUser);
     } else {
-      Fluttertoast.showToast(
-        msg: "Invalid email or password.",
-        backgroundColor: Colors.white,
-        textColor: Colors.red,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "Invalid email or password.",
+      ).show();
     }
   }
 

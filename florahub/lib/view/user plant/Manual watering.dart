@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,14 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
       if (response.statusCode == 200) {
         print('Manual watering activate sent successfully');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate successfully",
+          desc: "Your plant is currently showering now!",
+        ).show();
         setState(() {
           activateButtonColor =
               Color.fromARGB(255, 129, 178, 130); // Change color when tapped
@@ -28,6 +37,14 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
         });
       } else {
         print('Failed to activate manual watering request');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate failed",
+          desc: "Failed to activate Auto watering request. \nPlease try again.",
+        ).show();
       }
     } catch (e) {
       print('Error activate manual watering request: $e');
@@ -41,6 +58,15 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
       if (response.statusCode == 200) {
         print('Manual watering deactivate sent successfully');
+         AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.topSlide,
+            showCloseIcon: true,
+            title: "Deactivate successfully",
+            desc:
+                "Your plant has stop showering now!",
+            ).show();
         setState(() {
           deactivateButtonColor =
               Color.fromARGB(255, 209, 59, 48); // Change color when tapped
@@ -49,6 +75,14 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
         });
       } else {
         print('Failed to deactivate manual watering request');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Deactivate failed",
+          desc: "Failed to deactivate manual watering request. \nPlease try again.",
+        ).show();
       }
     } catch (e) {
       print('Error deactivate manual watering request: $e');

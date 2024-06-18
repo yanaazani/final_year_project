@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/view/profile/feedback.dart';
 import 'package:florahub/view/user/change_password.dart';
 import 'package:florahub/view/user/sign_in.dart';
@@ -61,7 +62,6 @@ class _SettingsPageState extends State<SettingsPage> {
         _images = response.bodyBytes;
       });
     } else {
-      // Handle errors, e.g., display a default image
       return null;
     }
   }
@@ -233,27 +233,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 },
               ),
-              /*ListTile(
-                title: Text('Language'),
-                trailing: Text(
-                  'English',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Constants.blackColor,
-                  ),
-                ),
-                onTap: () {
-                  // Navigate to language settings
-                },
-              ),*/
               ListTile(
                 title: Text('Feedback'),
                 trailing: Icon(Icons.feedback_outlined),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FeedbackPage(userId: userId)),
+                    MaterialPageRoute(
+                        builder: (context) => FeedbackPage(userId: userId)),
                   );
                 },
               ),
@@ -261,10 +248,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: Text('Log Out '),
                 trailing: Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
+                  AwesomeDialog(
+                      context: context,
+                      dialogType: DialogType.question,
+                      animType: AnimType.topSlide,
+                      showCloseIcon: true,
+                      title: "Log out?",
+                      desc: "Confirm to log out your account?",
+                      btnCancelOnPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingsPage(
+                                    userId: userId,
+                                  )),
+                        );
+                      },
+                      btnOkOnPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()),
+                        );
+                      }).show();
                 },
               ),
             ],
@@ -320,29 +326,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class NewScreen extends StatefulWidget {
-  const NewScreen({Key? key}) : super(key: key);
-
-  @override
-  State<NewScreen> createState() => _NewScreenState();
-}
-
-class _NewScreenState extends State<NewScreen> {
-  TextEditingController textEditingController = TextEditingController();
-
-  @override
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: const Text('New Screen'),
-      ),
-      body: Center(child: Text('This is your new screen')),
     );
   }
 }

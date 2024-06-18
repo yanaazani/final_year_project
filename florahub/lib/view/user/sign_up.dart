@@ -1,11 +1,8 @@
-import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/user/sign_in.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // For hashing password
@@ -56,90 +53,40 @@ class _RegisterFormState extends State<RegisterForm> {
       print(req.result());
 
       if (req.result() != null) {
-        ArtSweetAlert.show(
-          context: context,
-          artDialogArgs: ArtDialogArgs(
-              type: ArtSweetAlertType.success,
-              title: "SIGN UP SUCCESSFUL",
-              text: "You may proceed to go to Login page now!",
-              onConfirm: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()));
-              }),
-        );
+        AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.topSlide,
+            showCloseIcon: true,
+            title: "Welcome to FloraHub!",
+            desc:
+                "Your account has successfully registered into FloraHub, \nproceed to sign in page now!",
+            //btnCancelOnPress: () {},
+            btnOkOnPress: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            }).show();
       } else {
-        Fluttertoast.showToast(
-          msg: "Your email has been registered.\n Try using a different email.",
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          toastLength: Toast.LENGTH_LONG,
-          fontSize: 16.0,
-        );
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.info,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          //title: "Error",
+          desc:
+              "Your email has been registered.\n Try using a different email.",
+        ).show();
       }
     } else {
-      Fluttertoast.showToast(
-        msg: "Password do not match",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        //title: "Error",
+        desc: "Password do not match",
+      ).show();
     }
-  }
-
-  Future<void> signupFirebase(
-      String email, String password, String username) async {
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      // Add user data to Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-        'email': email,
-        'username': username,
-      });
-
-      await FirebaseFirestore.instance
-          .collection('parents')
-          .doc(userCredential.user!.uid)
-          .set({
-        'parentName': username,
-        'parentEmail': email,
-        // You can add more fields here as needed
-      });
-
-      // You can navigate to another screen or perform other actions upon successful registration
-      // For example:
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => NextScreen()),
-      // );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        // Handle weak password error
-      } else if (e.code == 'email-already-in-use') {
-        // Handle email already in use error
-      }
-    } catch (e) {
-      // Handle other errors
-    }
-  }
-
-  Future<void> signupBoth(BuildContext context) async {
-    // Call your signup function
-    await signup();
-
-    // Call your signupFirebase function
-    await signupFirebase(
-      emailController.text,
-      passwordController.text,
-      usernameCotroller.text,
-    );
   }
 
 // Function to hash password

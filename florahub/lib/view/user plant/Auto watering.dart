@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,14 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
       if (response.statusCode == 200) {
         print('Auto watering activate sent successfully');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate successfully",
+          desc: "Auto watering activate sent successfully",
+        ).show();
         setState(() {
           activateButtonColor =
               Color.fromARGB(255, 129, 178, 130); // Change color when tapped
@@ -28,6 +37,14 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
         });
       } else {
         print('Failed to activate Auto watering request');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate failed",
+          desc: "Failed to activate Auto watering request. \nPlease try again.",
+        ).show();
       }
     } catch (e) {
       print('Error activate Auto watering request: $e');
@@ -41,6 +58,14 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
       if (response.statusCode == 200) {
         print('Auto watering deactivate sent successfully');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Deactivate successfully",
+          desc: "Auto watering deactivate successfully",
+        ).show();
         setState(() {
           deactivateButtonColor =
               Color.fromARGB(255, 209, 59, 48); // Change color when tapped

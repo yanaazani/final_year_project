@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
 
     Future.delayed(Duration(seconds: 5), () async {
       final prefs = await SharedPreferences.getInstance();
-      String ip = "10.131.73.5";
+      String ip = "10.131.79.60";
       await prefs.setString("localhost", ip);
     });
   }

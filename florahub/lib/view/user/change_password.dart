@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/profile/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePassword extends StatefulWidget {
@@ -52,33 +51,42 @@ class _ChangePasswordState extends State<ChangePassword> {
 
     print(req.result());
 
-    // Check the status of the response
-    if (req.status() == 200) {
-      Fluttertoast.showToast(
-        msg: 'Update successfully',
-        backgroundColor: Colors.white,
-        textColor: const Color.fromARGB(255, 3, 1, 1),
-        gravity: ToastGravity.CENTER,
-        toastLength: Toast.LENGTH_SHORT,
-        fontSize: 16.0,
-      );
-      // Navigate to the settings page after a short delay
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage(userId: userId)),
-        );
-      });
+    if (passwordController.text == confirmPassController.text) {
+      if (req.status() == 200) {
+        AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.topSlide,
+            showCloseIcon: true,
+            title: "Change password",
+            desc: "Your password has been updated successfully!",
+            btnOkOnPress: () {
+              Future.delayed(const Duration(seconds: 1), () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SettingsPage(userId: userId)),
+                );
+              });
+            }).show();
+      } else {
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Update failed!",
+          desc: "Password do not match. Please try again.",
+        ).show();
+      }
     } else {
-      // Display an error toast if the update fails
-      Fluttertoast.showToast(
-        msg: 'Update failed!',
-        backgroundColor: Colors.white,
-        textColor: Colors.red,
-        gravity: ToastGravity.CENTER,
-        toastLength: Toast.LENGTH_SHORT,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "Password do not match",
+      ).show();
     }
   }
 
