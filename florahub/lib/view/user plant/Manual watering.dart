@@ -16,7 +16,7 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
   void sendManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.7:5020/?action=start';
+      var url = 'http://172.20.10.7:5022/?action=start';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -53,20 +53,19 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
 
   void deactivateManualWateringOnPump() async {
     try {
-      var url = 'http://172.20.10.7:5020/?action=stop';
+      var url = 'http://172.20.10.7:5022/?action=stop';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         print('Manual watering deactivate sent successfully');
-         AwesomeDialog(
-            context: context,
-            dialogType: DialogType.success,
-            animType: AnimType.topSlide,
-            showCloseIcon: true,
-            title: "Deactivate successfully",
-            desc:
-                "Your plant has stop showering now!",
-            ).show();
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Deactivate successfully",
+          desc: "Your plant has stop showering now!",
+        ).show();
         setState(() {
           deactivateButtonColor =
               Color.fromARGB(255, 209, 59, 48); // Change color when tapped
@@ -81,7 +80,8 @@ class _ManualWateringPageState extends State<ManualWateringPage> {
           animType: AnimType.topSlide,
           showCloseIcon: true,
           title: "Deactivate failed",
-          desc: "Failed to deactivate manual watering request. \nPlease try again.",
+          desc:
+              "Failed to deactivate manual watering request. \nPlease try again.",
         ).show();
       }
     } catch (e) {

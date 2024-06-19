@@ -3,7 +3,6 @@ import urequests  # type: ignore
 import time
 import utime  # type: ignore
 import socket
-import ujson
 from machine import Pin, ADC  # type: ignore
 
 # Connect to Wi-Fi
@@ -16,7 +15,6 @@ wifi.connect(wifi_ssid, wifi_password)
 # Wait until connected to Wi-Fi
 while not wifi.isconnected():
     pass
-
 print("Connected to Wi-Fi")
 
 # Function to get current date and time from an external server
@@ -34,31 +32,19 @@ def get_current_time():
 url = "http://172.20.10.3/xampp/save_data.php"
 
 # Initialize variables
-reading = 0
-percent = 0
-scheduled_time = None  # Variable to store the scheduled time
-
-# How frequently to take readings
 DELAY = 1.0
-# Set the analog read pin for the moisture sensor
 sensor_signal = ADC(Pin(27))
-# Set up the water pump pin
 pin_water_pump = Pin(8, Pin.OUT)
-
-# Moisture sensor calibration values
 SENSOR_MAX = 430
 SENSOR_MIN = 352
 
-# Flow sensor variables
 flow_frequency = 0
 flow_rate = 0
 total_milliliters = 0
-FLOW_CONVERSION_FACTOR = 4.5  # Calibration factor (pulses per liter)
-
-# Water billing rates (RM per cubic meter)
-RATE_1 = 0.87  # 0 to 20 cubic meters
-RATE_2 = 1.52  # 20 to 35 cubic meters
-RATE_3 = 2.02  # Above 35 cubic meters
+FLOW_CONVERSION_FACTOR = 4.5
+RATE_1 = 0.87
+RATE_2 = 1.52
+RATE_3 = 2.02
 
 flow_sensor = Pin(19, Pin.IN, Pin.PULL_UP)
 
@@ -81,25 +67,18 @@ def calculate_water_bill(volume_m3):
 
 def auto_watering_system():
     global flow_frequency, previous_millis, total_milliliters
-    date = get_current_time()  # Get current date and time
+    date = get_current_time()
 
-    # Take a reading from the sensor and make it easier to read
     value = round(sensor_signal.read_u16() / 100)
-    print("Reading:", value)
-
-    # Calculate the percentage
     percent = round(((value - SENSOR_MIN) / (SENSOR_MAX - SENSOR_MIN)) * 100)
-    print("Percent:", percent, end=' ')
+    print(f"Reading: {value}, Percent: {percent} ({'DRY' if percent >= 70 else 'WET'})")
 
     if percent >= 70:
-        print("(DRY)")
-        # Activate water pump if soil is dry
         pin_water_pump.on()
-        time.sleep(5)  # Run the water pump for 5 seconds
+        time.sleep(5)
         pin_water_pump.off()
 
-    # Check time interval for flow rate calculation
-    current_millis = time.ticks_ms() # type: ignore
+    current_millis = time.ticks_ms()  # type: ignore
     if (current_millis - previous_millis) > interval:
         pulse1Sec = flow_frequency
         flow_frequency = 0
@@ -108,16 +87,10 @@ def auto_watering_system():
 
         flow_milliliters_per_min = flow_rate * 1000
         total_milliliters += flow_milliliters_per_min * (interval / 60000)
-
         total_volume_m3 = total_milliliters / 1_000_000
         bill_amount = calculate_water_bill(total_volume_m3)
 
-        print("\n-------------------\n")
-        print("Flow Rate = {:.2f} Liters/Minute".format(flow_rate))
-        print("Total Volume = {:.2f} Milliliters".format(total_milliliters))
-        print("Total Volume = {:.6f} Cubic Meters".format(total_volume_m3))
-        print("Water Bill Amount = RM {:.2f}".format(bill_amount))
-        print("\n-------------------\n")
+        print(f"\n-------------------\nFlow Rate = {flow_rate:.2f} Liters/Minute\nTotal Volume = {total_milliliters:.2f} Milliliters\nTotal Volume = {total_volume_m3:.6f} Cubic Meters\nWater Bill Amount = RM {bill_amount:.2f}\n-------------------\n")
 
         data = {
             'date': date,
@@ -135,97 +108,71 @@ def auto_watering_system():
         except Exception as e:
             print("Error sending data:", e)
 
-# HTML content for the control panel
-html = """<!DOCTYPE html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            .buttonManualStart { background-color: #ACE1AF; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-            .buttonManualStop { background-color: #D37676; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-            .buttonAutoStart { background-color: #9BB0C1; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-            .buttonAutoStop { background-color: #80BCBD; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-            .buttonScheduleOn { background-color: #AC87C5; border: 2px solid #000000; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; }
-        </style>
-    </head>
-    <body>
-        <center>
-            <h1>Control Panel</h1>
-            <br>
-            <form>
-                <h2>Manual Watering System</h2>
-                <button class="buttonManualStart" name="action" value="start" type="submit">Start Water Pump</button>
-                <button class="buttonManualStop" name="action" value="stop" type="submit">Stop Water Pump</button>
-                <h2>Auto Watering System</h2>
-                <button class="buttonAutoStart" name="action" value="auto" type="submit">Activate Auto-Watering System</button>
-                <button class="buttonAutoStop" name="action" value="auto-stop" type="submit">Deactivate Auto-Watering System</button>
-            
-            </form>
-        </center>
-    </body>
-</html>
-"""
+def process_schedule_data(schedule_data):
+    if schedule_data and len(schedule_data) > 0:
+        for schedule_item in schedule_data:
+            start_time = schedule_item.get("startTime")
+            duration_seconds = int(schedule_item.get("duration", 0))
+            is_on = int(schedule_item.get("isOn", 0))
 
-# Create socket
-addr = socket.getaddrinfo('0.0.0.0', 5012)[0][-1]
+            print(f"Processing schedule item: {schedule_item}")
+
+            if start_time and is_on == 1:
+                time_parts = start_time.split(':')
+                if len(time_parts) == 3:
+                    try:
+                        start_hour, start_minute, _ = map(int, time_parts)
+                    except ValueError:
+                        print("Invalid start time format")
+                        continue
+
+                    current_time = utime.localtime()
+                    current_hour = current_time[3]
+                    current_minute = current_time[4]
+
+                    if current_hour == start_hour and current_minute == start_minute:
+                        print("Scheduled watering time active")
+                        pin_water_pump.on()
+                        time.sleep(duration_seconds)
+                        pin_water_pump.off()
+                else:
+                    print("Invalid start time format")
+            else:
+                print("No valid start time or isOn is not 1")
+
+addr = socket.getaddrinfo('0.0.0.0', 5020)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
 print('Listening on', addr)
 
-# Main loop
 while True:
     try:
         cl, addr = s.accept()
         print('Client connected from', addr)
-        request = cl.recv(1024)
-        request_str = request.decode('utf-8')
-        print("Request:")
-        print(request_str)
-        
-        schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
-        schedule_data = schedule_response.json()
-        schedule_response.close()
-        
-        if len(schedule_data) > 0:  # Check if there is any scheduled data
-            schedule_item = schedule_data[0]
-            # Extract start time and duration from the fetched data
-            start_time = schedule_data["startTime"]
-            duration_seconds = schedule_data["duration"]
-        
-            current_time = utime.localtime()
-            current_timestamp = utime.mktime(current_time)
-            
-            start_hour, start_minute, start_second = map(int, start_time.split(':'))
-            start_time_today = utime.mktime((current_time[0], current_time[1], current_time[2],
-                                                start_hour, start_minute, start_second,
-                                                current_time[6], current_time[7]))
-            
-            end_time_today = start_time_today + duration_seconds
-            
-            if start_time_today <= current_timestamp <= end_time_today:
-                print("Scheduled watering time active")
-                pin_water_pump.on()
-                time.sleep(duration_seconds)  # Run the water pump for the scheduled duration
-                pin_water_pump.off()
-            else:
-                print("Scheduled watering time not active")
-        # Check if request contains action parameter
-        if 'action=start' in request_str:
+        request = cl.recv(1024).decode('utf-8')
+        print("Request:", request)
+       
+        if 'action=start' in request:
             pin_water_pump.on()
-        elif 'action=stop' in request_str:
+        elif 'action=stop' in request:
             pin_water_pump.off()
-        elif 'action=auto' in request_str:
-            while 'action=auto' in request_str:
-                auto_watering_system()
-        elif 'action=auto-stop' in request_str:
+        elif 'action=auto' in request:
+            auto_watering_system()
+        elif 'action=auto-stop' in request:
             pass
         
-        # Send HTML response
         cl.send('HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'.encode())
-        cl.send(html.encode())
-
         cl.close()
-    
+        
+        # Fetch schedule data and process it
+        try:
+            schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
+            schedule_data = schedule_response.json()
+            schedule_response.close()
+            process_schedule_data(schedule_data)
+        except Exception as e:
+            print("Error fetching and processing schedule data:", e)
+                
     except Exception as e:
         print('Error:', e)
