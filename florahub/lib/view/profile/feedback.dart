@@ -1,4 +1,5 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -45,23 +46,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     print(req.result());
     if (req.result() != null) {
-      ArtSweetAlert.show(
-        context: context,
-        artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            text: "Thankyou for your feedback.",
-            onConfirm: () {
-              Navigator.pop(context);
-            }),
-      );
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          desc: "Thankyou for your feedback.",
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            Navigator.pop(context);
+          }).show();
     } else {
-      Fluttertoast.showToast(
-        msg: "Something is wrong. \nPlease try again later.",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "Something is wrong. \nPlease try again later.",
+      ).show();
     }
   }
 

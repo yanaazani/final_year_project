@@ -1,4 +1,5 @@
 import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -63,23 +64,25 @@ class _AddPlantsState extends State<AddPlants> {
 
     print(req.result());
     if (req.result() != null) {
-      ArtSweetAlert.show(
-        context: context,
-        artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            text: "Congrats, you have add new plant!",
-            onConfirm: () {
-              Navigator.pop(context);
-            }),
-      );
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          desc: "Congrats, you have add new plant!",
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            Navigator.pop(context);
+          }).show();
     } else {
-      Fluttertoast.showToast(
-        msg: "Failed to add your plant. \nPlease try again.",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        //title: "Error",
+        desc: "Failed to add your plant. \nPlease try again.",
+      ).show();
     }
   }
 

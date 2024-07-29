@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class WebRequestController {
   String path;
-  String server = "http://172.20.10.3:8080/florahub/";
+  String server = "http://172.20.10.2:8080/florahub/";
   http.Response? _res;
   final Map<dynamic, dynamic> _body = {};
   final Map<String, String> _headers = {};

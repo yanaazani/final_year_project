@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:art_sweetalert/art_sweetalert.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/model/schedule%20water.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -59,23 +60,24 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
 
     print(req.result());
     if (req.result() != null) {
-      ArtSweetAlert.show(
-        context: context,
-        artDialogArgs: ArtDialogArgs(
-            type: ArtSweetAlertType.success,
-            text: "Congrats, you have add new plant!",
-            onConfirm: () {
-              Navigator.pop(context);
-            }),
-      );
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          desc: "Successfully add new time schedule.",
+          //btnCancelOnPress: () {},
+          btnOkOnPress: () {
+            Navigator.pop(context);
+          }).show();
     } else {
-      Fluttertoast.showToast(
-        msg: "Failed to add your plant. \nPlease try again.",
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        toastLength: Toast.LENGTH_LONG,
-        fontSize: 16.0,
-      );
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "Failed to add your plant. \nPlease try again.",
+      ).show();
     }
   }
 
@@ -83,7 +85,7 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     try {
       // Make an HTTP GET request to fetch the schedules from the backend
       http.Response response = await http.get(Uri.parse(
-          "http://172.20.10.3:8080/florahub/scheduledWatering/plant/${widget.plantId}?deleted=0"));
+          "http://172.20.10.2:8080/florahub/scheduledWatering/plant/${widget.plantId}?deleted=0"));
 
       print('Response body: ${response.body}');
       // Check the response status
@@ -206,6 +208,68 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     await fetchSchedules();
   }
 
+  void activateSchedule() async {
+    try {
+      var url = 'http://172.20.10.7:5025/?action=activate-schedule';
+      var response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        print('Schedule watering activate sent successfully');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate successfully",
+          desc: "Schedule watering activate successfully",
+        ).show();
+      } else {
+        print('Failed to activate Auto watering request');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Activate failed",
+          desc: "Failed to activate schedule watering. \nPlease try again.",
+        ).show();
+      }
+    } catch (e) {
+      print('Error activate Auto watering request: $e');
+    }
+  }
+
+  void deactivateSchedule() async {
+    try {
+      var url = 'http://172.20.10.7:5025/?action=deactivate-schedule';
+      var response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        print('Schedule watering deactivate sent successfully');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Deactivate successfully",
+          desc: "Schedule watering deactivate successfully",
+        ).show();
+      } else {
+        print('Failed to activate Auto watering request');
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.error,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          title: "Deactivate failed",
+          desc: "Something is wrong. \nPlease try again.",
+        ).show();
+      }
+    } catch (e) {
+      print('Error activate Auto watering request: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -226,11 +290,78 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
         onRefresh: _refreshData,
         child: Column(
           children: [
+            Row(
+              children: [
+                SizedBox(width: 20),
+                InkWell(
+                  onTap: () {
+                    activateSchedule();
+                  },
+                  child: Container(
+                    width: 160,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.black, // Outline border color
+                      ),
+                      color: Colors.green[100], // Button color
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Activate Schedule',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Text color
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 25),
+                InkWell(
+                  onTap: () {
+                    deactivateSchedule();
+                  },
+                  child: Container(
+                    width: 160,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.black, // Outline border color
+                      ),
+                      color: Colors.red[500], // Button color
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Deactivate Schedule',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // Text color
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 15),
+            Text(
+              'Do you want to add new Schedule for your plant?',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Constants.blackColor,
+              ),
+            ),
             SizedBox(height: 15),
             _buildTimePicker(),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             _buildDurationSelector(),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             OutlinedButton(
               onPressed: () {
                 add();

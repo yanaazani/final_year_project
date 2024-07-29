@@ -41,7 +41,7 @@ def set_system_time():
 set_system_time()
 
 # Server URL
-url = "http://172.20.10.3/xampp/save_data.php"
+url = "http://172.20.10.2/xampp/save_data.php"
 
 # Initialize variables
 DELAY = 1.0
@@ -169,7 +169,29 @@ def process_schedule_data(schedule_data):
             else:
                 print("No valid start time or isOn is not 1")
 
-addr = socket.getaddrinfo('0.0.0.0', 5022)[0][-1]
+schedule_active = False
+
+def activate_schedule():
+    global schedule_active
+    schedule_active = True
+    while schedule_active:
+        # Fetch schedule data and process it continuously
+        try:
+            schedule_response = urequests.get("http://172.20.10.2/xampp/fetch_data.php")
+            schedule_data = schedule_response.json()
+            schedule_response.close()
+            process_schedule_data(schedule_data)
+        except Exception as e:
+            print("Error fetching and processing schedule data:", e)
+
+        # Sleep briefly to avoid excessive looping
+        time.sleep(10)  # Check for new schedule every 10 seconds
+
+def deactivate_schedule():
+    global schedule_active
+    schedule_active = False
+
+addr = socket.getaddrinfo('0.0.0.0', 5025)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
@@ -190,18 +212,13 @@ while True:
             auto_watering_system()
         elif 'action=auto-stop' in request:
             pass
+        elif 'action=activate-schedule' in request:
+            activate_schedule()  # Start schedule-based watering system
+        elif 'action=deactivate-schedule' in request:
+            pass  # Stop schedule-based watering system
         
         cl.send('HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n'.encode())
         cl.close()
-        
-        # Fetch schedule data and process it
-        try:
-            schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
-            schedule_data = schedule_response.json()
-            schedule_response.close()
-            process_schedule_data(schedule_data)
-        except Exception as e:
-            print("Error fetching and processing schedule data:", e)
                 
     except Exception as e:
         print('Error:', e)

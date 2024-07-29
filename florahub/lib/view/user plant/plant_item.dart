@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:florahub/controller/RequestController.dart';
 import 'package:florahub/view/dashboard/water%20data%20volume.dart';
 import 'package:florahub/view/user%20plant/Auto%20watering.dart';
 import 'package:florahub/view/user%20plant/Edit%20plant.dart';
 import 'package:florahub/view/user%20plant/Manual%20watering.dart';
 import 'package:florahub/view/user%20plant/Schedule%20watering.dart';
+import 'package:florahub/view/user%20plant/plants.dart';
 import 'package:http/http.dart' as http;
 import 'package:florahub/model/plant.dart';
 import 'package:florahub/widgets/constants.dart';
@@ -33,7 +35,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.3:8080/florahub/user_plant/detail/$userId/$plantId'));
+        'http://172.20.10.2:8080/florahub/user_plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON
@@ -78,10 +80,34 @@ class _PlantItemState extends State<PlantItem> {
       // Plant soft deleted successfully
       print('Plant soft deleted successfully');
       callback(true); // Invoke the callback with true
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.topSlide,
+          showCloseIcon: true,
+          desc: "Your plant has been deleted.",
+          btnOkOnPress: () {
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlantsPage(
+                          userId: userId,
+                        )),
+              );
+            });
+          }).show();
     } else {
       // Failed to soft delete plant
       print('Failed to soft delete plant');
       callback(false); // Invoke the callback with false
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "Something is wrong. Please try again later.",
+      ).show();
     }
   }
 

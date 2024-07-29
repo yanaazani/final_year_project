@@ -206,7 +206,6 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
     }
   }
 
-  // Yearly total cost
   Future<void> getTotalCostYearly() async {
     final prefs = await SharedPreferences.getInstance();
     String? server = prefs.getString("localhost");
@@ -216,11 +215,21 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
     try {
       List<SalesData> yearlyCostData = [];
       if (req.status() == 200) {
-        req.result();
-        print(req.result());
+        List<dynamic> result = req.result();
+        print(result); // Debug print to check the fetched data
+        for (var item in result) {
+          if (item is List<dynamic> && item.length == 2) {
+            int year = item[0];
+            double cost = item[1];
+            yearlyCostData.add(SalesData(year.toDouble(), cost));
+          }
+        }
         setState(() {
           _lineChartDataCost = yearlyCostData;
+          print(_lineChartDataCost); // Debug print to check the updated data
         });
+      } else {
+        print("Request failed with status: ${req.status()}");
       }
     } catch (e) {
       print('Error fetching data: $e');
@@ -686,19 +695,20 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                               // Use LineSeries explicitly
                               name: 'Cost (RM)',
                               dataSource: _lineChartDataCost,
-                              xValueMapper: (SalesData sales, _) =>
-                                  sales.year.toDouble(),
+                              xValueMapper: (SalesData sales, _) => sales.year,
                               yValueMapper: (SalesData sales, _) => sales.sales,
-                              dataLabelSettings:
-                                  DataLabelSettings(isVisible: true),
+                              dataLabelSettings: DataLabelSettings(
+                                isVisible: true,
+                                textStyle: TextStyle(fontSize: 12),
+                              ),
                             ),
                           ],
                           primaryXAxis: NumericAxis(
                             edgeLabelPlacement: EdgeLabelPlacement.shift,
                             isVisible: true,
-                            minimum: 2020, // Set minimum value to 2020
-                            maximum:
-                                2024, // Set maximum value to 2024 or any other appropriate maximum value
+                            minimum:
+                                2020, // Adjust these values based on your data
+                            maximum: 2024,
                             interval: 1,
                             labelFormat: '{value}',
                           ),
@@ -706,7 +716,8 @@ class _WaterDataVolumeState extends State<WaterDataVolume>
                             labelFormat: "RM{value}",
                             isVisible: true,
                             minimum: 0,
-                            maximum: 100,
+                            maximum:
+                                100, // Adjust these values based on your data
                             interval: 20,
                           ),
                         ),
