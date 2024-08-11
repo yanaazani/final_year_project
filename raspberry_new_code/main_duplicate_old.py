@@ -43,7 +43,7 @@ def set_system_time():
 set_system_time()
 
 # Server URL
-url = "http://172.20.10.2/xampp/save_data.php"
+url = "http://172.20.10.3/xampp/save_data.php"
 
 # Initialize variables
 DELAY = 1.0
@@ -81,6 +81,7 @@ def calculate_water_bill(volume_m3):
 
 def auto_watering_system():
     global flow_frequency, previous_millis, total_milliliters
+    date = get_current_time()
     watering = False
 
     while True:
@@ -98,6 +99,7 @@ def auto_watering_system():
                 print("Soil is moist. Stopping watering...")
                 pin_water_pump.off()
                 watering = False
+                break  # Exit the loop if the soil is moist
 
         current_millis = time.ticks_ms()  # type: ignore
         if (current_millis - previous_millis) > interval:
@@ -114,7 +116,7 @@ def auto_watering_system():
             print(f"\n-------------------\nFlow Rate = {flow_rate:.2f} Liters/Minute\nTotal Volume = {total_milliliters:.2f} Milliliters\nTotal Volume = {total_volume_m3:.6f} Cubic Meters\nWater Bill Amount = RM {bill_amount:.2f}\n-------------------\n")
 
             data = {
-                'date': get_current_time(),
+                'date': date,
                 'reading': value,
                 'percent': percent,
                 'flow_rate': flow_rate,
@@ -131,7 +133,6 @@ def auto_watering_system():
 
         # Sleep briefly to avoid excessive looping
         time.sleep(1)
-
 
 def process_schedule_data(schedule_data):
     if schedule_data and len(schedule_data) > 0:
@@ -178,7 +179,7 @@ def activate_schedule():
     while schedule_active:
         # Fetch schedule data and process it continuously
         try:
-            schedule_response = urequests.get("http://172.20.10.2/xampp/fetch_data.php")
+            schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
             schedule_data = schedule_response.json()
             schedule_response.close()
             process_schedule_data(schedule_data)
@@ -199,7 +200,6 @@ s.listen(1)
 print('Listening on', addr)
 
 while True:
-    auto_watering_system()
     try:
         cl, addr = s.accept()
         print('Client connected from', addr)
@@ -210,6 +210,8 @@ while True:
             pin_water_pump.on()
         elif 'action=stop' in request:
             pin_water_pump.off()
+        elif 'action=auto' in request:
+            auto_watering_system()
         elif 'action=auto-stop' in request:
             pass
         elif 'action=activate-schedule' in request:

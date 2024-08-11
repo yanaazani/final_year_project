@@ -1,5 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:florahub/controller/RequestController.dart';
+import 'package:florahub/view/user/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:florahub/view/Homescreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -10,6 +14,61 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   TextEditingController emailController = TextEditingController();
+
+  Future forgotpassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? server = prefs.getString("localhost");
+    String email = emailController.text;
+
+    // Include the email as a query parameter in the URL
+    WebRequestController req = WebRequestController(
+        path: "user/findByEmail?email=$email", server: "http://$server:8080");
+
+    await req.get(); // Use GET request for fetching data
+    print(req.result());
+
+    final userData = req.result();
+
+    if (req.status() == 200 && userData != null) {
+      // Email exists, proceed to password reset
+      var userId = userData["id"];
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.success,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        title: "Email found!",
+        desc: "You can now proceed to change your password.",
+        btnOkOnPress: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ResetPasswordPage(
+                      email: email,
+                    )),
+          );
+        },
+      ).show();
+    } else if (req.status() == 404) {
+      // Email does not exist
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "The email address you entered does not exist.",
+      ).show();
+    } else {
+      // General error handling
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "An error occurred. Please try again later.",
+      ).show();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +121,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         padding: EdgeInsets.all(20),
                       ),
                       Text(
-                        'Enter your email address to receive\n a verification link.',
+                        'Enter your email address.',
                         style: TextStyle(
                           fontSize: 20, // Adjust the font size as needed
                           fontWeight: FontWeight
@@ -86,7 +145,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               hintText: "Email"),
                         ),
                       ),
-                      Align(
+                      /*Align(
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +169,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             ),
                           ],
                         ),
-                      ),
+                      ),*/
                       Padding(
                         padding: EdgeInsets.only(bottom: 15.0),
                       ),
@@ -123,7 +182,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           textStyle: const TextStyle(fontSize: 20),
                           side: BorderSide(color: Colors.green[300]!),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          forgotpassword();
+                        },
                         child: const Text('Send'),
                       ),
                     ],

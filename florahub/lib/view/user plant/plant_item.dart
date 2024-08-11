@@ -35,7 +35,7 @@ class _PlantItemState extends State<PlantItem> {
 
   Future<Plant> fetchPlantDetail(int userId, int plantId) async {
     final response = await http.get(Uri.parse(
-        'http://172.20.10.2:8080/florahub/user_plant/detail/$userId/$plantId'));
+        'http://172.20.10.3:8080/florahub/user_plant/detail/$userId/$plantId'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON

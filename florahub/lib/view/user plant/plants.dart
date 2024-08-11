@@ -48,7 +48,7 @@ class _PlantsTabBarState extends State<PlantsTabBar> {
     try {
       // Make an HTTP GET request to fetch the user's plants from the backend
       http.Response response = await http.get(Uri.parse(
-          "http://172.20.10.2:8080/florahub/user_plant/plantsByUserId/${widget.userId}"));
+          "http://172.20.10.3:8080/florahub/user_plant/plantsByUserId/${widget.userId}"));
 
       print('Response body: ${response.body}');
       // Check the response status

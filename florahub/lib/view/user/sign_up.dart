@@ -31,7 +31,43 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
+  // Function to validate password
+  bool validatePassword(String password) {
+    // Regular expression for password validation
+    String pattern =
+        r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+|~=`{}\[\]:";\<>?,./]).{8,}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(password);
+  }
+
   Future signup() async {
+
+    if (usernameCotroller.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc: "All fields are required. Please fill in all the details.",
+      ).show();
+      return;
+    }
+
+    if (!validatePassword(passwordController.text)) {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        desc:
+            "Please use 8 or more characters with a mix of letters, numbers, and symbols.",
+      ).show();
+      return;
+    }
+
     //password match
     if (passwordController.text == confirmPasswordController.text) {
       /**

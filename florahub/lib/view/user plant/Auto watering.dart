@@ -2,6 +2,8 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:florahub/widgets/constants.dart';
+import 'package:lottie/lottie.dart';
 
 class AutoWateringPage extends StatefulWidget {
   const AutoWateringPage({Key? key});
@@ -98,7 +100,25 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: 100),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "The automatic watering system is enabled by default, meaning it "
+                "will automatically turn on without any additional setup required.",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Constants.blackColor,
+                ),
+                 textAlign: TextAlign.justify,
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Lottie.asset(
+                    'assets/Lottie/Animation - 1722311177385.json'),
+              ),
+            /*SizedBox(height: 100),
             InkWell(
               onTap: () {
                 activateAuto();
@@ -124,6 +144,19 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
                   ),
                 ),
               ),
+            ),*/
+            SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "To deactivate the automatic features, click the button below.",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Constants.blackColor,
+                ),
+                 textAlign: TextAlign.justify,
+              ),
             ),
             SizedBox(height: 20),
             InkWell(
@@ -131,10 +164,10 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
                 deactive();
               },
               child: Container(
-                width: 200,
-                height: 200,
+                width: 300,
+                height: 50,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  shape: BoxShape.rectangle,
                   border: Border.all(
                     color: Colors.black, // Outline border color
                   ),

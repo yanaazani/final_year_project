@@ -85,7 +85,7 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
     try {
       // Make an HTTP GET request to fetch the schedules from the backend
       http.Response response = await http.get(Uri.parse(
-          "http://172.20.10.2:8080/florahub/scheduledWatering/plant/${widget.plantId}?deleted=0"));
+          "http://172.20.10.3:8080/florahub/scheduledWatering/plant/${widget.plantId}?deleted=0"));
 
       print('Response body: ${response.body}');
       // Check the response status
@@ -210,7 +210,7 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
 
   void activateSchedule() async {
     try {
-      var url = 'http://172.20.10.7:5025/?action=activate-schedule';
+      var url = 'http://172.20.10.7:5026/?action=activate-schedule';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -241,7 +241,7 @@ class _ScheduleWateringPageState extends State<ScheduleWateringPage> {
 
   void deactivateSchedule() async {
     try {
-      var url = 'http://172.20.10.7:5025/?action=deactivate-schedule';
+      var url = 'http://172.20.10.7:5026/?action=deactivate-schedule';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
