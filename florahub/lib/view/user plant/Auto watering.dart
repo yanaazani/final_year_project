@@ -18,7 +18,7 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
   void activateAuto() async {
     try {
-      var url = 'http://172.20.10.7:5025/?action=auto';
+      var url = 'http://172.20.10.7:5027/?action=auto';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -55,7 +55,7 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
 
   void deactive() async {
     try {
-      var url = 'http://172.20.10.7:5025/?action=stop_auto';
+      var url = 'http://172.20.10.7:5027/?action=stop_auto';
       var response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -97,95 +97,98 @@ class _AutoWateringPageState extends State<AutoWateringPage> {
         elevation: 0,
       ),
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "The automatic watering system is enabled by default, meaning it "
-                "will automatically turn on without any additional setup required.",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Constants.blackColor,
+      body: SingleChildScrollView(
+        // Wrap Column with SingleChildScrollView
+        child: Center(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Text(
+                  "The automatic watering system is enabled by default, meaning it "
+                  "will automatically turn on without any additional setup required.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Constants.blackColor,
+                  ),
+                  textAlign: TextAlign.justify,
                 ),
-                 textAlign: TextAlign.justify,
               ),
-            ),
-            Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Lottie.asset(
                     'assets/Lottie/Animation - 1722311177385.json'),
               ),
-            /*SizedBox(height: 100),
-            InkWell(
-              onTap: () {
-                activateAuto();
-              },
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.black, // Outline border color
+              SizedBox(height: 100),
+              InkWell(
+                onTap: () {
+                  activateAuto();
+                },
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.black, // Outline border color
+                    ),
+                    color: activateButtonColor, // Button color
                   ),
-                  color: activateButtonColor, // Button color
-                ),
-                child: Center(
-                  child: Text(
-                    'Activate',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white, // Text color
+                  child: Center(
+                    child: Text(
+                      'Activate',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Text color
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),*/
-            SizedBox(height: 20),
-            Padding(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "To deactivate the automatic features, click the button below.",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Constants.blackColor,
-                ),
-                 textAlign: TextAlign.justify,
-              ),
-            ),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: () {
-                deactive();
-              },
-              child: Container(
-                width: 300,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  border: Border.all(
-                    color: Colors.black, // Outline border color
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Text(
+                  "To deactivate the automatic features, click the button below.",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Constants.blackColor,
                   ),
-                  color: deactivateButtonColor, // Button color
+                  textAlign: TextAlign.justify,
                 ),
-                child: Center(
-                  child: Text(
-                    'Deactivate',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white, // Text color
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () {
+                  deactive();
+                },
+                child: Container(
+                  width: 300,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    border: Border.all(
+                      color: Colors.black, // Outline border color
+                    ),
+                    color: deactivateButtonColor, // Button color
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Deactivate',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Text color
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

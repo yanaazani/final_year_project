@@ -1,4 +1,4 @@
-# 30/7/2024 - Code that are used in fyp1 presentation
+#27/8/2024 current progress
 
 import network  # type: ignore
 import urequests  # type: ignore
@@ -43,7 +43,7 @@ def set_system_time():
 set_system_time()
 
 # Server URL
-url = "http://172.20.10.2/xampp/save_data.php"
+url = "http://172.20.10.3/xampp/save_data.php"
 
 # Initialize variables
 DELAY = 1.0
@@ -128,6 +128,8 @@ def auto_watering_system():
                 response.close()
             except Exception as e:
                 print("Error sending data:", e)
+                time.sleep(5)  # Wait for 5 seconds before retrying
+                continue  # Retry sending data
 
         # Sleep briefly to avoid excessive looping
         time.sleep(1)
@@ -178,7 +180,7 @@ def activate_schedule():
     while schedule_active:
         # Fetch schedule data and process it continuously
         try:
-            schedule_response = urequests.get("http://172.20.10.2/xampp/fetch_data.php")
+            schedule_response = urequests.get("http://172.20.10.3/xampp/fetch_data.php")
             schedule_data = schedule_response.json()
             schedule_response.close()
             process_schedule_data(schedule_data)
@@ -192,14 +194,13 @@ def deactivate_schedule():
     global schedule_active
     schedule_active = False
 
-addr = socket.getaddrinfo('0.0.0.0', 5026)[0][-1]
+addr = socket.getaddrinfo('0.0.0.0', 5027)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
 print('Listening on', addr)
 
 while True:
-    auto_watering_system()
     try:
         cl, addr = s.accept()
         print('Client connected from', addr)
@@ -210,6 +211,8 @@ while True:
             pin_water_pump.on()
         elif 'action=stop' in request:
             pin_water_pump.off()
+        elif 'action=auto' in request:
+            auto_watering_system()
         elif 'action=auto-stop' in request:
             pass
         elif 'action=activate-schedule' in request:
